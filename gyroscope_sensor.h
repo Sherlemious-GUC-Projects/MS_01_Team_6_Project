@@ -61,7 +61,7 @@ typedef struct data_t {
   vector_t *gyro_ang;
 } data_t;
 
-data_t imu_init(void);
+data_t *imu_init(void);
 void read_accelerometer(data_t *data);
 void read_gyroscope(data_t *data);
 void get_angular_displacement(absolute_time_t last_time, data_t *data);

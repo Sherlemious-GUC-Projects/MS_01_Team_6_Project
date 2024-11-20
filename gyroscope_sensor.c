@@ -3,7 +3,7 @@
 #include "pico/stdlib.h"
 #include <stdio.h>
 
-data_t imu_init(void) {
+data_t *imu_init(void) {
   // Initialize I2C
   i2c_init(i2c0, 400000); // 400 kHz
   gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -96,14 +96,14 @@ void get_angular_displacement(absolute_time_t last_time,
   float dt = absolute_time_diff_us(last_time, current_time) / 1000000.0f;
   last_time = current_time;
 
-  calculate_angular_displacement(dt);
+  calculate_angular_displacement(dt, data);
 }
 
 void calculate_angular_displacement(float dt, data_t *data) {
   // integrate the gyro velocity to get the gyro angles
-  data->gyro_ang->x += data->gyro_ang->x * dt;
-  data->gyro_ang->y += data->gyro_ang->y * dt;
-  data->gyro_ang->z += data->gyro_ang->z * dt;
+  data->gyro_ang->x += data->gyro_vel->x * dt;
+  data->gyro_ang->y += data->gyro_vel->y * dt;
+  data->gyro_ang->z += data->gyro_vel->z * dt;
 }
 
 void print_sensor_contents() {
