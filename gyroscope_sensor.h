@@ -1,9 +1,9 @@
 #ifndef GYROSCOPE_H
 #define GYROSCOPE_H
 
-#include <stdio.h>
-#include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "pico/stdlib.h"
+#include <stdio.h>
 
 // LSM6DSL I2C Address
 #define LSM6DSL_ADDR 0x6A
@@ -31,32 +31,41 @@
 #define I2C_SDA 12 // A4/D18
 #define I2C_SCL 13 // A5/D19
 
-typedef struct gyro_angles_t
-{
-    float angle_x;
-    float angle_y;
-    float angle_z;
+typedef struct gyro_angles_t {
+  float angle_x;
+  float angle_y;
+  float angle_z;
 } gyro_angles_t;
 
-typedef struct acc_t
-{
-    float x;
-    float y;
-    float z;
+typedef struct acc_t {
+  float x;
+  float y;
+  float z;
 } acc_t;
 
-typedef struct gyro_velocity_t
-{
-    float x;
-    float y;
-    float z;
+typedef struct gyro_velocity_t {
+  float x;
+  float y;
+  float z;
 } gyro_velocity_t;
 
-void imu_init();
-void read_accelerometer();
-void read_gyroscope();
-struct gyro_angles_t get_angular_displacement(absolute_time_t last_time);
-struct gyro_angles_t calculate_angular_displacement(float dt);
+typedef struct vector_t {
+  float x;
+  float y;
+  float z;
+} vector_t;
+
+typedef struct data_t {
+  vector_t *acc;
+  vector_t *gyro_vel;
+  vector_t *gyro_ang;
+} data_t;
+
+data_t imu_init(void);
+void read_accelerometer(data_t *data);
+void read_gyroscope(data_t *data);
+void get_angular_displacement(absolute_time_t last_time, data_t *data);
+void calculate_angular_displacement(float dt, data_t *data);
 void print_sensor_contents();
 
 #endif
