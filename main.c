@@ -17,8 +17,7 @@ int main() {
 
   // Loop forever
   while (true) {
-    print_sensor_contents();
-
+    print_sensor_contents(last_time);
     // Blink LED
     // gpio_put(led_pin, true);
     sleep_ms(1000);

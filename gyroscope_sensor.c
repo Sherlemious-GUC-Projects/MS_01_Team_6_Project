@@ -106,16 +106,12 @@ void calculate_angular_displacement(float dt, data_t *data) {
   data->gyro_ang->z += data->gyro_vel->z * dt;
 }
 
-void print_sensor_contents() {
+void print_sensor_contents(absolute_time_t last_time) {
   // init the imu
+
   data_t *data = imu_init();
-  /* printf("Acceleration (g): X = %.3f, Y = %.3f, Z = %.3f\r\n", acc.x, acc.y,
-   */
-  /*        acc.z); */
-  /* printf("Gyroscope (dps): X = %.3f, Y = %.3f, Z = %.3f\r\n",
-   * gyro_velocity.x, */
-  /*        gyro_velocity.y, gyro_velocity.z); */
-  /* printf("Angular Displacement (degrees): X = %.3f, Y = %.3f, Z = %.3f\r\n",
-   */
-  /*        gyro_angles.angle_x, gyro_angles.angle_y, gyro_angles.angle_z); */
+  get_angular_displacement(last_time, data);
+   printf("Acceleration (g): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->acc->x, data->acc->y, data->acc->z); 
+   printf("Gyroscope (dps): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_vel->x, data->gyro_vel->y, data->gyro_vel->z); 
+   printf("Angular Displacement (degrees): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_ang->x, data->gyro_ang->y, data->gyro_ang->z);
 }
