@@ -2,6 +2,7 @@
 #include "gps-neo6m.h"
 #include "motor_driver.h"
 #include "servo_driver.h"
+#include "hardware/pwm.h"
 
 int main()
 {
@@ -15,10 +16,10 @@ int main()
   stdio_init_all();
 
   // Initialize IMU
-  imu_init();
-  uart_gps_init();
+  // imu_init();
+  // uart_gps_init();
   servo_init();
-  motor_init();
+  // motor_init();
 
   GPSData gps_data;
 
@@ -47,12 +48,8 @@ int main()
     // sleep_ms(1000);
     // motor_control(0, false);
     // sleep_ms(1000);
-    // servo_control(0); // Move to 0 degrees
-    // sleep_ms(4000);
-    servo_control(90); // Move to 90 degrees
-    // sleep_ms(1000);
-    servo_control(180); // Move to 180 degrees
-    sleep_ms(2000);
+    set_servo_angle(90); // Set servo to 90 degrees
+    sleep_ms(1000);
 
     // Blink LED
     gpio_put(led_pin, true);
