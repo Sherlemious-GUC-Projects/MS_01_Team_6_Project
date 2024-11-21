@@ -2,56 +2,41 @@
 #include "gyroscope_sensor.h"
 #include "hardware/pwm.h"
 #include "motor_driver.h"
-#include "servo_driver.h"
+// #include "servo_driver.h"
+#define SERVO_PWM_PIN 15 // GPIO pin for servo PWM signal
 
-int main() {
+int main()
+{
   const uint led_pin = 6;
+  // Initialize GPIO pin 15 for PWM
+  gpio_set_function(SERVO_PWM_PIN, GPIO_FUNC_PWM);
 
-  // Initialize LED pin
-  gpio_init(led_pin);
-  gpio_set_dir(led_pin, GPIO_OUT);
+  // Get the PWM slice number for the pin
+  uint slice_num = pwm_gpio_to_slice_num(SERVO_PWM_PIN);
 
-  // Initialize chosen serial port
-  stdio_init_all();
+  // Set PWM frequency for servo (50Hz, 20ms period)
+  pwm_set_wrap(slice_num, 39062);   // Wrap value for 50Hz (20ms period)
+  pwm_set_clkdiv(slice_num, 64.0f); // Clock divisor for 50Hz
 
-  // Initialize IMU
-  /* imu_init(); */
-  /* uart_gps_init(); */
-  /* servo_init(); */
-  motor_init();
+  // Enable PWM
+  pwm_set_enabled(slice_num, true);
 
-  GPSData gps_data;
+  // Set a 1.5ms pulse width (duty cycle for 90°)
 
-  absolute_time_t last_time = get_absolute_time();
+  while (true)
+  {
+    uint16_t pulse_width = 1000;                         // 1.5ms
+    uint16_t duty_cycle = (pulse_width * 39062) / 20000; // Scale to the PWM period (50Hz)
+    pwm_set_gpio_level(SERVO_PWM_PIN, duty_cycle);       // Apply the duty cycle (1.5ms pulse)
+    sleep_ms(2000);                                      // Wait 1 second
+    pulse_width = 2500;                                  // 1.5ms
+    duty_cycle = (pulse_width * 39062) / 20000;          // Scale to the PWM period (50Hz)
+                                                         // Blink LED
+    pwm_set_gpio_level(SERVO_PWM_PIN, duty_cycle);       // Apply the duty cycle (1.5ms pulse)
+    sleep_ms(1750);                                      // Wait 1 second
 
-  // Loop forever
-  while (true) {
-    // print_sensor_contents(last_time);
-
-    // process_gps_data(&gps_data);
-
-    // Check if GPS data is valid and print
-
-    // printf("GPS Location:\n");
-    // printf("Latitude: %.6f\n", gps_data.latitude);
-    // printf("Longitude: %.6f\n", gps_data.longitude);
-    // printf("Altitude: %.2f\n", gps_data.altitude);
-    // printf("Satellites: %d\n", gps_data.satellites);
-
-    motor_control(255, true);
-    sleep_ms(1000);
-    motor_control(0, true);
-    sleep_ms(1000);
-    motor_control(255, false);
-    sleep_ms(1000);
-    motor_control(0, false);
-    sleep_ms(1000);
-    /* set_servo_angle(90); // Set servo to 90 degrees */
-    sleep_ms(1000);
-
-    // Blink LED
     gpio_put(led_pin, true);
-    sleep_ms(1000);
+    sleep_ms(250);
     gpio_put(led_pin, false);
   }
 }

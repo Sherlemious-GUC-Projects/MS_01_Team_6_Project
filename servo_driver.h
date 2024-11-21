@@ -4,7 +4,7 @@
 #include "pico/stdlib.h"
 
 // GPIO pin definitions
-#define SERVO_PWM_PIN 8 // GPIO pin for servo PWM signal
+#define SERVO_PWM_PIN 16 // GPIO pin for servo PWM signal
 
 // Function Declarations
 void servo_init();
