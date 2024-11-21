@@ -5,8 +5,7 @@
 // #include "servo_driver.h"
 #define SERVO_PWM_PIN 15 // GPIO pin for servo PWM signal
 
-int main()
-{
+int servo_main() {
   const uint led_pin = 6;
   // Initialize GPIO pin 15 for PWM
   gpio_set_function(SERVO_PWM_PIN, GPIO_FUNC_PWM);
@@ -23,20 +22,49 @@ int main()
 
   // Set a 1.5ms pulse width (duty cycle for 90°)
 
-  while (true)
-  {
-    uint16_t pulse_width = 1000;                         // 1.5ms
-    uint16_t duty_cycle = (pulse_width * 39062) / 20000; // Scale to the PWM period (50Hz)
-    pwm_set_gpio_level(SERVO_PWM_PIN, duty_cycle);       // Apply the duty cycle (1.5ms pulse)
-    sleep_ms(2000);                                      // Wait 1 second
-    pulse_width = 2500;                                  // 1.5ms
-    duty_cycle = (pulse_width * 39062) / 20000;          // Scale to the PWM period (50Hz)
-                                                         // Blink LED
-    pwm_set_gpio_level(SERVO_PWM_PIN, duty_cycle);       // Apply the duty cycle (1.5ms pulse)
-    sleep_ms(1750);                                      // Wait 1 second
+  while (true) {
+    uint16_t pulse_width = 1000; // 1.5ms
+    uint16_t duty_cycle =
+        (pulse_width * 39062) / 20000; // Scale to the PWM period (50Hz)
+    pwm_set_gpio_level(SERVO_PWM_PIN,
+                       duty_cycle); // Apply the duty cycle (1.5ms pulse)
+    sleep_ms(2000);                 // Wait 1 second
+    pulse_width = 2500;             // 1.5ms
+    duty_cycle = (pulse_width * 39062) / 20000; // Scale to the PWM period
+                                                // (50Hz) Blink LED
+    pwm_set_gpio_level(SERVO_PWM_PIN,
+                       duty_cycle); // Apply the duty cycle (1.5ms pulse)
+    sleep_ms(1750);                 // Wait 1 second
 
     gpio_put(led_pin, true);
     sleep_ms(250);
     gpio_put(led_pin, false);
   }
+
+  return 0;
+}
+
+int motor_main() {
+  // Initialize the motor driver
+  motor_init();
+
+  // infinite loop
+  while (true) {
+    // Set the motor speed to 50% and direction to forward
+    motor_control(127, true);
+    sleep_ms(2000); // Wait for 2 seconds
+
+    // Set the motor speed to 50% and direction to reverse
+    motor_control(127, false);
+    sleep_ms(2000); // Wait for 2 seconds
+
+    // Set the motor to MAX speed and direction to forward
+    motor_control(255, true);
+  }
+  return 0;
+}
+
+int main() {
+  motor_main();
+  return 0;
 }
