@@ -1,6 +1,10 @@
 #include "gyroscope_sensor.h"
+#include "gps-neo6m.h"
+#include "motor_driver.h"
+#include "servo_driver.h"
 
-int main() {
+int main()
+{
   const uint led_pin = 6;
 
   // Initialize LED pin
@@ -12,16 +16,46 @@ int main() {
 
   // Initialize IMU
   imu_init();
+  uart_gps_init();
+  servo_init();
+  motor_init();
+
+  GPSData gps_data;
 
   absolute_time_t last_time = get_absolute_time();
 
   // Loop forever
-  while (true) {
-    print_sensor_contents(last_time);
+  while (true)
+  {
+    // print_sensor_contents(last_time);
+
+    // process_gps_data(&gps_data);
+
+    // Check if GPS data is valid and print
+
+    // printf("GPS Location:\n");
+    // printf("Latitude: %.6f\n", gps_data.latitude);
+    // printf("Longitude: %.6f\n", gps_data.longitude);
+    // printf("Altitude: %.2f\n", gps_data.altitude);
+    // printf("Satellites: %d\n", gps_data.satellites);
+
+    // motor_control(255, true);
+    // sleep_ms(1000);
+    // motor_control(0, true);
+    // sleep_ms(1000);
+    // motor_control(255, false);
+    // sleep_ms(1000);
+    // motor_control(0, false);
+    // sleep_ms(1000);
+    // servo_control(0); // Move to 0 degrees
+    // sleep_ms(4000);
+    servo_control(90); // Move to 90 degrees
+    // sleep_ms(1000);
+    servo_control(180); // Move to 180 degrees
+    sleep_ms(2000);
+
     // Blink LED
-    // gpio_put(led_pin, true);
+    gpio_put(led_pin, true);
     sleep_ms(1000);
-    // gpio_put(led_pin, false);
-    // sleep_ms(500);
   }
 }
