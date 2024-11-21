@@ -5,20 +5,41 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define UART_ID uart0
 #define BAUD_RATE 9600
-#define UART_TX_PIN 0
-#define UART_RX_PIN 1
+#define UART_TX_PIN 0 // D12
+#define UART_RX_PIN 1 // D10
 #define MAX_NMEA_LENGTH 100
 
 void uart_gps_init()
 {
     // Initialize UART with more robust configuration
     uart_init(UART_ID, BAUD_RATE);
+
+    // gpio_set_function(UART_TX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_TX_PIN));
+    // gpio_set_function(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
+
     gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
     gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+
     uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
     uart_set_fifo_enabled(UART_ID, true);
+
+    uart_set_hw_flow(UART_ID, false, false);
+    uart_set_irq_enables(UART_ID, true, false);
+}
+
+void send_gps_command(const char *command)
+{
+    uart_puts(UART_ID, command);
+    uart_puts(UART_ID, "\r\n");
+}
+
+void configure_gps()
+{
+    // Enable GGA sentences
+    send_gps_command("$PUBX,40,GGA,1,1,1,1,1,1*1D");
+    sleep_ms(250);
+    send_gps_command("$PUBX,00*33");
 }
 
 bool validate_nmea_checksum(char *nmea_string)
@@ -63,6 +84,8 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
         return false;
     }
 
+    printf("NMEA String: %s\n", nmea_string);
+
     if (strncmp(nmea_string, "$GPGGA", 6) == 0)
     {
         char *tokens[15];
@@ -72,6 +95,7 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
         while (token != NULL && token_count < 15)
         {
             tokens[token_count++] = token;
+            token = strtok(NULL, ",");
         }
 
         if (token_count >= 10)
@@ -116,19 +140,29 @@ void process_gps_data(GPSData *gps_data)
 
     while (uart_is_readable(UART_ID) && chars_read < MAX_NMEA_LENGTH - 1)
     {
-        nmea_buffer[chars_read] = uart_getc(UART_ID);
+        // printf("IF 1");
 
-        if (nmea_buffer[chars_read] == '\n')
+        char c = uart_getc(UART_ID);
+        nmea_buffer[chars_read] = c;
+
+        // printf("IF 1.5");
+        // printf("%c, %d\n", c, c);
+
+        if ((int)c == 10)
         {
+            // printf("IF 2");
+            // printf("%c", nmea_buffer[chars_read]);
             nmea_buffer[chars_read + 1] = '\0';
 
             if (parse_nmea_gps(nmea_buffer, gps_data))
             {
+                printf("IF 3");
                 // Optional: Add logging or further processing
                 printf("Valid GPS Data Received\n");
             }
 
             chars_read = 0;
+            break;
         }
         else
         {
