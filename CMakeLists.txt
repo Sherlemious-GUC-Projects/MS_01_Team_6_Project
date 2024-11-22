@@ -15,6 +15,7 @@ pico_sdk_init()
 # Tell CMake where to find the executable source file
 add_executable(${PROJECT_NAME} main.c gyroscope_sensor.c gps-neo6m.c motor_driver.c servo_driver.c motorTest.c)
 
+
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(${PROJECT_NAME})
 
@@ -28,4 +29,4 @@ target_link_libraries(${PROJECT_NAME}
 
 # Enable usb output, disable uart output
 pico_enable_stdio_usb(${PROJECT_NAME} 1)
-pico_enable_stdio_uart(${PROJECT_NAME} 0)
+pico_enable_stdio_uart(${PROJECT_NAME} 1)
