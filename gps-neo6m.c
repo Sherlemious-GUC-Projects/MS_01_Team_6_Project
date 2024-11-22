@@ -44,26 +44,23 @@ void configure_gps()
 
 bool validate_nmea_checksum(char *nmea_string)
 {
-    // Basic NMEA checksum validation
     int len = strlen(nmea_string);
-    if (len < 4)
-        return false;
+    if (len < 7)
+        return false; // Minimum valid NMEA sentence length
 
     char *checksum_ptr = strchr(nmea_string, '*');
     if (!checksum_ptr)
         return false;
 
-    // Calculate checksum
-    uint8_t checksum = 0;
-    for (int i = 1; nmea_string[i] != '*'; i++)
+    uint8_t calculated_checksum = 0;
+    for (char *p = nmea_string + 1; p < checksum_ptr; p++)
     {
-        checksum ^= nmea_string[i];
+        calculated_checksum ^= *p;
     }
 
-    // Compare calculated with provided
-    char calc_checksum[3];
-    snprintf(calc_checksum, sizeof(calc_checksum), "%02X", checksum);
-    return strncmp(calc_checksum, checksum_ptr + 1, 2) == 0;
+    char hex_checksum[3];
+    snprintf(hex_checksum, sizeof(hex_checksum), "%02X", calculated_checksum);
+    return strncmp(hex_checksum, checksum_ptr + 1, 2) == 0;
 }
 
 void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord)
@@ -78,9 +75,11 @@ void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord)
 
 bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 {
+    printf("Entered Parsing\n");
     // Validate NMEA checksum
     if (!validate_nmea_checksum(nmea_string))
     {
+        printf("Invalid NMEA checksum\n");
         return false;
     }
 
@@ -132,6 +131,9 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 
 void process_gps_data(GPSData *gps_data)
 {
+
+    printf("UART Readable: %d\n", uart_is_readable(UART_ID));
+
     char nmea_buffer[MAX_NMEA_LENGTH];
     int chars_read = 0;
 
