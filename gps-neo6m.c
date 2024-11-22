@@ -78,7 +78,7 @@ void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord)
 
 bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 {
-    // More comprehensive NMEA parsing
+    // Validate NMEA checksum
     if (!validate_nmea_checksum(nmea_string))
     {
         return false;
@@ -86,44 +86,41 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 
     printf("NMEA String: %s\n", nmea_string);
 
-    if (strncmp(nmea_string, "$GPGGA", 6) == 0)
+    if (strncmp(nmea_string, "$GPRMC", 6) == 0)
     {
-        char *tokens[15];
+        char *token;
+        char *tokens[12] = {0};
         int token_count = 0;
-        char *token = strtok(nmea_string, ",");
 
-        while (token != NULL && token_count < 15)
+        // Tokenize the string
+        token = strtok(nmea_string, ",");
+        while (token != NULL && token_count < 12)
         {
             tokens[token_count++] = token;
+
+            printf("Token %d: %s\n", token_count, token);
+
             token = strtok(NULL, ",");
         }
 
-        if (token_count >= 10)
+        // Check if we have enough tokens and data is valid
+        if (token_count >= 12 && strcmp(tokens[2], "A") == 0)
         {
-            // Time
-            strncpy(gps_data->time, tokens[1], sizeof(gps_data->time) - 1);
-
             // Latitude
-            if (strlen(tokens[2]) > 0)
+            if (strlen(tokens[3]) > 0)
             {
-                convert_nmea_to_decimal(tokens[2], &gps_data->latitude);
-                if (tokens[3][0] == 'S')
+                convert_nmea_to_decimal(tokens[3], &gps_data->latitude);
+                if (tokens[4][0] == 'S')
                     gps_data->latitude = -gps_data->latitude;
             }
 
             // Longitude
-            if (strlen(tokens[4]) > 0)
+            if (strlen(tokens[5]) > 0)
             {
-                convert_nmea_to_decimal(tokens[4], &gps_data->longitude);
-                if (tokens[5][0] == 'W')
+                convert_nmea_to_decimal(tokens[5], &gps_data->longitude);
+                if (tokens[6][0] == 'W')
                     gps_data->longitude = -gps_data->longitude;
             }
-
-            // Altitude
-            gps_data->altitude = atof(tokens[9]);
-
-            // Satellites
-            gps_data->satellites = atoi(tokens[7]);
 
             gps_data->is_valid = true;
             return true;
@@ -156,7 +153,7 @@ void process_gps_data(GPSData *gps_data)
 
             if (parse_nmea_gps(nmea_buffer, gps_data))
             {
-                printf("IF 3");
+                // printf("IF 3");
                 // Optional: Add logging or further processing
                 printf("Valid GPS Data Received\n");
             }

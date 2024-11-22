@@ -9,11 +9,7 @@ typedef struct
 {
     float latitude;  // Latitude in decimal degrees
     float longitude; // Longitude in decimal degrees
-    float altitude;  // Altitude in meters
-    float speed;     // Ground speed in km/h
-    int satellites;  // Number of satellites used
     bool is_valid;   // Whether GPS data is valid
-    char time[20];   // UTC time
 } GPSData;
 
 // Initialization function

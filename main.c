@@ -15,15 +15,18 @@ int main()
 
   // Initialize chosen serial port
   stdio_init_all();
+  sleep_ms(5000);
 
   // Initialize IMU
   /* imu_init(); */
   uart_gps_init();
-  configure_gps();
+  sleep_ms(60 * 1000);
+  // configure_gps();
   /* servo_init(); */
   // motor_init();
 
   GPSData gps_data = {0};
+  int readings = 0;
 
   // absolute_time_t last_time = get_absolute_time();
 
@@ -31,7 +34,7 @@ int main()
   while (true)
   {
     // print_sensor_contents(last_time);
-
+    printf("READING\n %d", readings++);
     process_gps_data(&gps_data);
 
     // Check if GPS data is valid and print
@@ -45,13 +48,11 @@ int main()
       printf("GPS Location:\n");
       printf("Latitude: %.6f\n", gps_data.latitude);
       printf("Longitude: %.6f\n", gps_data.longitude);
-      printf("Altitude: %.2f\n", gps_data.altitude);
-      printf("Satellites: %d\n", gps_data.satellites);
       gps_data.is_valid = false;
     }
 
     // motor_control(255, true);
-    sleep_ms(1000);
+    sleep_ms(20000);
     // motor_control(0, true);
     // sleep_ms(1000);
     // motor_control(255, false);
