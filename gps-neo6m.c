@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 #define BAUD_RATE 9600
 #define UART_TX_PIN 0 // D12
 #define UART_RX_PIN 1 // D10
@@ -55,6 +56,7 @@ void configure_gps()
 
 bool validate_nmea_checksum(char *nmea_string)
 {
+
     int len = strlen(nmea_string);
     if (len < 7)
         return false; // Minimum valid NMEA sentence length
@@ -62,6 +64,7 @@ bool validate_nmea_checksum(char *nmea_string)
     char *checksum_ptr = strchr(nmea_string, '*');
     if (!checksum_ptr)
         return false;
+
 
     uint8_t calculated_checksum = 0;
     for (char *p = nmea_string + 1; p < checksum_ptr; p++)
@@ -86,7 +89,6 @@ void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord)
 
 bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 {
-
     printf("Entered Parsing\n ");
     // Validate NMEA checksum
     if (!validate_nmea_checksum(nmea_string))
@@ -132,7 +134,7 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
                 if (tokens[6][0] == 'W')
                     gps_data->longitude = -gps_data->longitude;
             }
-
+          
             gps_data->is_valid = true;
             return true;
         }
@@ -143,7 +145,6 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 
 void process_gps_data(GPSData *gps_data)
 {
-
     printf("UART Readable: %d\n", uart_is_readable(UART_ID));
 
     char nmea_buffer[MAX_NMEA_LENGTH];
@@ -173,6 +174,7 @@ void process_gps_data(GPSData *gps_data)
             }
 
             chars_read = 0;
+
             break;
         }
         else

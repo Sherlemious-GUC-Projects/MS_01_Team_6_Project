@@ -201,6 +201,8 @@ void process_gps_data(GPSData *gps_data)
 int main()
 {
   const uint led_pin = 6;
+  // Initialize GPIO pin 15 for PWM
+  gpio_set_function(SERVO_PWM_PIN, GPIO_FUNC_PWM);
 
   // Initialize chosen serial port
   stdio_init_all();
@@ -235,4 +237,31 @@ int main()
     printf("*******************************************************************\n");
     sleep_ms(30 * 1000);
   }
+
+  return 0;
+}
+
+int motor_main() {
+  // Initialize the motor driver
+  motor_init();
+
+  // infinite loop
+  while (true) {
+    // Set the motor speed to 50% and direction to forward
+    motor_control(127, true);
+    sleep_ms(2000); // Wait for 2 seconds
+
+    // Set the motor speed to 50% and direction to reverse
+    motor_control(127, false);
+    sleep_ms(2000); // Wait for 2 seconds
+
+    // Set the motor to MAX speed and direction to forward
+    motor_control(255, true);
+  }
+  return 0;
+}
+
+int main() {
+  motor_main();
+  return 0;
 }
