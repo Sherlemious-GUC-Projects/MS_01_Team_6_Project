@@ -1,8 +1,14 @@
 #include "hardware/pwm.h"
-#include "pico/stdlib.h"
-#include <stdio.h>
-
 #include "hardware/uart.h"
+
+#include "pico/stdlib.h"
+
+#include "servo_driver.h"
+#include "motor_driver.h"
+#include "gyroscope_sensor.h"
+#include "gps-neo6m.h"
+
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
@@ -10,14 +16,6 @@
 #define UART_TX_PIN 0 // D12
 #define UART_RX_PIN 1 // D10
 #define MAX_NMEA_LENGTH 256
-#define UART_ID uart0
-
-typedef struct
-{
-  float latitude;  // Latitude in decimal degrees
-  float longitude; // Longitude in decimal degrees
-  bool is_valid;   // Whether GPS data is valid
-} GPSData;
 
 void uart_gps_init()
 {
@@ -198,55 +196,111 @@ void process_gps_data(GPSData *gps_data)
   }
 }
 
-int main()
+int servo_main()
 {
   const uint led_pin = 6;
   // Initialize GPIO pin 15 for PWM
   gpio_set_function(SERVO_PWM_PIN, GPIO_FUNC_PWM);
 
+  // Get the PWM slice number for the pin
+  uint slice_num = pwm_gpio_to_slice_num(SERVO_PWM_PIN);
+
+  // Set PWM frequency for servo (50Hz, 20ms period)
+  pwm_set_wrap(slice_num, 39062);   // Wrap value for 50Hz (20ms period)
+  pwm_set_clkdiv(slice_num, 64.0f); // Clock divisor for 50Hz
+
+  // Enable PWM
+  pwm_set_enabled(slice_num, true);
+
+  // Set a 1.5ms pulse width (duty cycle for 90°)
+
+  while (true)
+  {
+    uint16_t pulse_width = 1000; // 1.5ms
+    uint16_t duty_cycle =
+        (pulse_width * 39062) / 20000; // Scale to the PWM period (50Hz)
+    pwm_set_gpio_level(SERVO_PWM_PIN,
+                       duty_cycle);             // Apply the duty cycle (1.5ms pulse)
+    sleep_ms(2000);                             // Wait 1 second
+    pulse_width = 2500;                         // 1.5ms
+    duty_cycle = (pulse_width * 39062) / 20000; // Scale to the PWM period
+                                                // (50Hz) Blink LED
+    pwm_set_gpio_level(SERVO_PWM_PIN,
+                       duty_cycle); // Apply the duty cycle (1.5ms pulse)
+    sleep_ms(1750);                 // Wait 1 second
+
+    gpio_put(led_pin, true);
+    sleep_ms(250);
+    gpio_put(led_pin, false);
+  }
+
+  return 0;
+}
+
+int main()
+{
+  // motor_main();
+
+  const uint led_pin = 6;
+  // Initialize GPIO pin 15 for PWM
+  // gpio_set_function(SERVO_PWM_PIN, GPIO_FUNC_PWM);
+
   // Initialize chosen serial port
   stdio_init_all();
-  sleep_ms(500);
+  // sleep_ms(500);
 
   // Initialize LED pin
   gpio_init(led_pin);
   gpio_set_dir(led_pin, GPIO_OUT);
 
   // Initialize IMU
-  uart_gps_init();
-  sleep_ms(7 * 60 * 1000);
-  configure_gps();
+  servo_main();
+  imu_init();
+  // uart_gps_init();
+  // sleep_ms(7 * 60 * 1000);
+  // configure_gps();
 
-  GPSData gps_data = {0};
-  int readings = 0;
+  // GPSData gps_data = {0};
+  // int readings = 0;
+
+  absolute_time_t last_time = get_absolute_time();
 
   // Loop forever
   while (true)
   {
-    printf("READING\n %d", readings++);
-    process_gps_data(&gps_data);
+    print_sensor_contents(last_time);
+    // Blink LED
+    // gpio_put(led_pin, true);
+    sleep_ms(1000);
+    // gpio_put(led_pin, false);
+    // sleep_ms(500);
 
-    if (gps_data.is_valid)
-    {
-      printf("GPS Location:\n");
-      printf("Latitude: %.6f\n", gps_data.latitude);
-      printf("Longitude: %.6f\n", gps_data.longitude);
-      gps_data.is_valid = false;
-    }
+    // printf("READING\n %d", readings++);
+    // process_gps_data(&gps_data);
 
-    printf("*******************************************************************\n");
-    sleep_ms(30 * 1000);
+    // if (gps_data.is_valid)
+    // {
+    //   printf("GPS Location:\n");
+    //   printf("Latitude: %.6f\n", gps_data.latitude);
+    //   printf("Longitude: %.6f\n", gps_data.longitude);
+    //   gps_data.is_valid = false;
+    // }
+
+    // printf("*******************************************************************\n");
+    // sleep_ms(30 * 1000);
   }
 
   return 0;
 }
 
-int motor_main() {
+int motor_main()
+{
   // Initialize the motor driver
   motor_init();
 
   // infinite loop
-  while (true) {
+  while (true)
+  {
     // Set the motor speed to 50% and direction to forward
     motor_control(127, true);
     sleep_ms(2000); // Wait for 2 seconds
@@ -258,10 +312,5 @@ int motor_main() {
     // Set the motor to MAX speed and direction to forward
     motor_control(255, true);
   }
-  return 0;
-}
-
-int main() {
-  motor_main();
   return 0;
 }

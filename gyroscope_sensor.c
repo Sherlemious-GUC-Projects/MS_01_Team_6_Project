@@ -120,6 +120,7 @@ void print_sensor_contents(absolute_time_t last_time)
 
   data_t *data = imu_init();
   get_angular_displacement(last_time, data);
+  // printf("********************************* GYRO CONTENTS *********************************\n");
   printf("Acceleration (g): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->acc->x, data->acc->y, data->acc->z);
   printf("Gyroscope (dps): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_vel->x, data->gyro_vel->y, data->gyro_vel->z);
   printf("Angular Displacement (degrees): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_ang->x, data->gyro_ang->y, data->gyro_ang->z);

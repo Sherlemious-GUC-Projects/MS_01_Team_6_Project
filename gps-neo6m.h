@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #define UART_ID uart0
-// GPS Data Structure
+
 typedef struct
 {
     float latitude;  // Latitude in decimal degrees
