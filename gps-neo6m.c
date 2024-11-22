@@ -36,10 +36,21 @@ void send_gps_command(const char *command)
 
 void configure_gps()
 {
-    // Enable GGA sentences
+    // Enable $GPGGA (Global Positioning System Fix Data)
     send_gps_command("$PUBX,40,GGA,1,1,1,1,1,1*1D");
     sleep_ms(250);
-    send_gps_command("$PUBX,00*33");
+
+    // Enable $GPRMC (Recommended Minimum Specific GPS/Transit Data)
+    send_gps_command("$PUBX,40,RMC,1,1,1,1,1,1*1D");
+    sleep_ms(250);
+
+    // Enable $GPGSA (GPS DOP and Active Satellites)
+    send_gps_command("$PUBX,40,GSA,1,1,1,1,1,1*1E");
+    sleep_ms(250);
+
+    // Enable $GPGSV (GPS Satellites in View)
+    send_gps_command("$PUBX,40,GSV,1,1,1,1,1,1*1F");
+    sleep_ms(250);
 }
 
 bool validate_nmea_checksum(char *nmea_string)
@@ -75,11 +86,12 @@ void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord)
 
 bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
 {
-    printf("Entered Parsing\n");
+
+    printf("Entered Parsing\n ");
     // Validate NMEA checksum
     if (!validate_nmea_checksum(nmea_string))
     {
-        printf("Invalid NMEA checksum\n");
+        printf("Invalid NMEA Checksum\n");
         return false;
     }
 
@@ -149,7 +161,7 @@ void process_gps_data(GPSData *gps_data)
 
         if ((int)c == 10)
         {
-            // printf("IF 2");
+            printf("IF 2");
             // printf("%c", nmea_buffer[chars_read]);
             nmea_buffer[chars_read + 1] = '\0';
 
