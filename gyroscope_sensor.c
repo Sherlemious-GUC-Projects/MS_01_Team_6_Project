@@ -4,8 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-data_t *imu_init(void)
-{
+data_t *imu_init(void) {
   // Initialize I2C
   i2c_init(i2c0, 400000); // 400 kHz
   gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -16,16 +15,14 @@ data_t *imu_init(void)
   // Configure Accelerometer (ODR 104 Hz, ±2g scale)
   uint8_t config[2] = {CTRL1_XL, 0x40};
   int result = i2c_write_blocking(i2c0, LSM6DSL_ADDR, config, 2, false);
-  if (result < 0)
-  {
+  if (result < 0) {
     printf("Failed to configure accelerometer\n");
   }
 
   // Configure Gyroscope (ODR 104 Hz, ±250 dps)
   uint8_t gyro_config[2] = {CTRL2_G, 0x40};
   result = i2c_write_blocking(i2c0, LSM6DSL_ADDR, gyro_config, 2, false);
-  if (result < 0)
-  {
+  if (result < 0) {
     printf("Failed to configure gyroscope\n");
   }
 
@@ -57,8 +54,7 @@ data_t *imu_init(void)
   return data;
 }
 
-void read_accelerometer(data_t *data)
-{
+void read_accelerometer(data_t *data) {
   uint8_t buffer[6];
 
   // Read 6 bytes of accelerometer data
@@ -73,8 +69,7 @@ void read_accelerometer(data_t *data)
   data->acc->z = ((int16_t)((buffer[5] << 8) | buffer[4])) * 0.061 / 1000.0;
 }
 
-void read_gyroscope(data_t *data)
-{
+void read_gyroscope(data_t *data) {
   uint8_t buffer[6];
 
   // Read 6 bytes of gyroscope data
@@ -93,9 +88,7 @@ void read_gyroscope(data_t *data)
   data->gyro_vel->z = ((int16_t)((buffer[5] << 8) | buffer[4])) * 8.75 / 1000.0;
 }
 
-void get_angular_displacement(absolute_time_t last_time,
-                              data_t *data)
-{
+void get_angular_displacement(absolute_time_t last_time, data_t *data) {
   read_accelerometer(data);
   read_gyroscope(data);
 
@@ -106,22 +99,24 @@ void get_angular_displacement(absolute_time_t last_time,
   calculate_angular_displacement(dt, data);
 }
 
-void calculate_angular_displacement(float dt, data_t *data)
-{
+void calculate_angular_displacement(float dt, data_t *data) {
   // integrate the gyro velocity to get the gyro angles
   data->gyro_ang->x += data->gyro_vel->x * dt;
   data->gyro_ang->y += data->gyro_vel->y * dt;
   data->gyro_ang->z += data->gyro_vel->z * dt;
 }
 
-void print_sensor_contents(absolute_time_t last_time)
-{
+void print_sensor_contents(absolute_time_t last_time) {
   // init the imu
 
   data_t *data = imu_init();
   get_angular_displacement(last_time, data);
-  // printf("********************************* GYRO CONTENTS *********************************\n");
-  printf("Acceleration (g): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->acc->x, data->acc->y, data->acc->z);
-  printf("Gyroscope (dps): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_vel->x, data->gyro_vel->y, data->gyro_vel->z);
-  printf("Angular Displacement (degrees): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_ang->x, data->gyro_ang->y, data->gyro_ang->z);
+  // printf("********************************* GYRO CONTENTS
+  // *********************************\n");
+  printf("Acceleration (g): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->acc->x,
+         data->acc->y, data->acc->z);
+  printf("Gyroscope (dps): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_vel->x,
+         data->gyro_vel->y, data->gyro_vel->z);
+  printf("Angular Displacement (degrees): X = %.3f, Y = %.3f, Z = %.3f\r\n",
+         data->gyro_ang->x, data->gyro_ang->y, data->gyro_ang->z);
 }

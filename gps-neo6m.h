@@ -5,11 +5,10 @@
 
 #define UART_ID uart0
 
-typedef struct
-{
-    float latitude;  // Latitude in decimal degrees
-    float longitude; // Longitude in decimal degrees
-    bool is_valid;   // Whether GPS data is valid
+typedef struct {
+  float latitude;  // Latitude in decimal degrees
+  float longitude; // Longitude in decimal degrees
+  bool is_valid;   // Whether GPS data is valid
 } GPSData;
 
 // Initialization function
