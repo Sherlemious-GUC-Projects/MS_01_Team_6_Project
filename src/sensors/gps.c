@@ -1,14 +1,9 @@
-#include "gps-neo6m.h"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define BAUD_RATE 9600
-#define UART_TX_PIN 0 // D12
-#define UART_RX_PIN 1 // D10
-#define MAX_NMEA_LENGTH 100
+#include "../../include/sensors/gps.h"
 
 void uart_gps_init() {
   // Initialize UART with more robust configuration
@@ -40,25 +35,23 @@ void configure_gps() {
   // Enable $GPRMC (Recommended Minimum Specific GPS/Transit Data)
   send_gps_command("$PUBX,40,RMC,1,1,1,1,1,1*1D");
   sleep_ms(250);
-
-  // Enable $GPGSA (GPS DOP and Active Satellites)
-  send_gps_command("$PUBX,40,GSA,1,1,1,1,1,1*1E");
-  sleep_ms(250);
-
-  // Enable $GPGSV (GPS Satellites in View)
-  send_gps_command("$PUBX,40,GSV,1,1,1,1,1,1*1F");
-  sleep_ms(250);
 }
 
 bool validate_nmea_checksum(char *nmea_string) {
-
   int len = strlen(nmea_string);
-  if (len < 7)
-    return false; // Minimum valid NMEA sentence length
+  printf("Checksum Validation - String Length: %d\n", len);
+  printf("Full NMEA String: %s", nmea_string);
+
+  if (len < 7) {
+    printf("Invalid: Too short (< 7 chars)\n");
+    return false;
+  }
 
   char *checksum_ptr = strchr(nmea_string, '*');
-  if (!checksum_ptr)
+  if (!checksum_ptr) {
+    printf("Invalid: No checksum marker (*) found\n");
     return false;
+  }
 
   uint8_t calculated_checksum = 0;
   for (char *p = nmea_string + 1; p < checksum_ptr; p++) {
@@ -67,7 +60,14 @@ bool validate_nmea_checksum(char *nmea_string) {
 
   char hex_checksum[3];
   snprintf(hex_checksum, sizeof(hex_checksum), "%02X", calculated_checksum);
-  return strncmp(hex_checksum, checksum_ptr + 1, 2) == 0;
+
+  printf("Calculated Checksum: %s\n", hex_checksum);
+  printf("Received Checksum: %s\n", checksum_ptr + 1);
+
+  bool is_valid = strncmp(hex_checksum, checksum_ptr + 1, 2) == 0;
+  printf("Checksum Validation: %s\n", is_valid ? "VALID" : "INVALID");
+
+  return is_valid;
 }
 
 void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord) {
@@ -80,14 +80,15 @@ void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord) {
 }
 
 bool parse_nmea_gps(char *nmea_string, GPSData *gps_data) {
-  printf("Entered Parsing\n ");
+
+  // printf("Entered Parsing\n ");
   // Validate NMEA checksum
   if (!validate_nmea_checksum(nmea_string)) {
     printf("Invalid NMEA Checksum\n");
     return false;
   }
 
-  printf("NMEA String: %s\n", nmea_string);
+  // printf("NMEA String: %s\n", nmea_string);
 
   if (strncmp(nmea_string, "$GPRMC", 6) == 0) {
     char *token;
@@ -99,7 +100,7 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data) {
     while (token != NULL && token_count < 12) {
       tokens[token_count++] = token;
 
-      printf("Token %d: %s\n", token_count, token);
+      // printf("Token %d: %s\n", token_count, token);
 
       token = strtok(NULL, ",");
     }
@@ -129,6 +130,7 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data) {
 }
 
 void process_gps_data(GPSData *gps_data) {
+
   printf("UART Readable: %d\n", uart_is_readable(UART_ID));
 
   char nmea_buffer[MAX_NMEA_LENGTH];
@@ -141,10 +143,9 @@ void process_gps_data(GPSData *gps_data) {
     nmea_buffer[chars_read] = c;
 
     // printf("IF 1.5");
-    // printf("%c, %d\n", c, c);
+    printf("%c, %d\n", c, c);
 
     if ((int)c == 10) {
-      printf("IF 2");
       // printf("%c", nmea_buffer[chars_read]);
       nmea_buffer[chars_read + 1] = '\0';
 
@@ -155,7 +156,6 @@ void process_gps_data(GPSData *gps_data) {
       }
 
       chars_read = 0;
-
       break;
     } else {
       chars_read++;

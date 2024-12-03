@@ -1,9 +1,12 @@
-#ifndef GPS_NEO6M_H
-#define GPS_NEO6M_H
+#pragma once
 
 #include <stdbool.h>
 
 #define UART_ID uart0
+#define BAUD_RATE 9600
+#define UART_TX_PIN 0 // D12
+#define UART_RX_PIN 1 // D10
+#define MAX_NMEA_LENGTH 256
 
 typedef struct {
   float latitude;  // Latitude in decimal degrees
@@ -25,5 +28,3 @@ void process_gps_data(GPSData *gps_data);
 // Additional utility functions
 void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord);
 bool validate_nmea_checksum(char *nmea_string);
-
-#endif // GPS_NEO6M_H

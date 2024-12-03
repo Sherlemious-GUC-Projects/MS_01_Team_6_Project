@@ -1,5 +1,4 @@
-#ifndef MOTOR_CONTROL_H
-#define MOTOR_CONTROL_H
+#pragma once
 
 #include "pico/stdlib.h"
 
@@ -9,7 +8,6 @@
 #define MOTOR_DIR_PIN2 7 // GPIO pin 7 for direction control
 
 // Function Declarations
-void motor_init(void);
+void motor_setup();
 void motor_control(uint16_t speed, bool forward);
-
-#endif
+void motor_loop();

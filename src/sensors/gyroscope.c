@@ -1,10 +1,11 @@
-#include "gyroscope_sensor.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "../../include/constants.h"
+#include "../../include/sensors/gyroscope.h"
 
-data_t *imu_init(void) {
+data_t *imu_setup(void) {
   // Initialize I2C
   i2c_init(i2c0, 400000); // 400 kHz
   gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
@@ -77,10 +78,6 @@ void read_gyroscope(data_t *data) {
   i2c_write_blocking(i2c0, LSM6DSL_ADDR, &reg, 1, true);
   i2c_read_blocking(i2c0, LSM6DSL_ADDR, buffer, 6, false);
 
-  // Print raw data for debugging
-  printf("Raw gyroscope data: %02x %02x %02x %02x %02x %02x\n", buffer[0],
-         buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
-
   // Convert raw data to dps
   // For ±250 dps range, sensitivity is 8.75 mdps/LSB
   data->gyro_vel->x = ((int16_t)((buffer[1] << 8) | buffer[0])) * 8.75 / 1000.0;
@@ -106,17 +103,16 @@ void calculate_angular_displacement(float dt, data_t *data) {
   data->gyro_ang->z += data->gyro_vel->z * dt;
 }
 
-void print_sensor_contents(absolute_time_t last_time) {
-  // init the imu
+void print_gyro(absolute_time_t last_time) {
 
-  data_t *data = imu_init();
+  data_t *data = imu_setup();
   get_angular_displacement(last_time, data);
-  // printf("********************************* GYRO CONTENTS
-  // *********************************\n");
-  printf("Acceleration (g): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->acc->x,
-         data->acc->y, data->acc->z);
-  printf("Gyroscope (dps): X = %.3f, Y = %.3f, Z = %.3f\r\n", data->gyro_vel->x,
-         data->gyro_vel->y, data->gyro_vel->z);
-  printf("Angular Displacement (degrees): X = %.3f, Y = %.3f, Z = %.3f\r\n",
+  
+  printf(MAGENTA "******************************** GYRO CONTENTS ********************************\n" RESET);
+  printf(CYAN "Acceleration (g): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n", 
+         data->acc->x, data->acc->y, data->acc->z);
+  printf(CYAN "Gyroscope (dps): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n", 
+         data->gyro_vel->x, data->gyro_vel->y, data->gyro_vel->z);
+  printf(CYAN "Angular Displacement (degrees): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n\n", 
          data->gyro_ang->x, data->gyro_ang->y, data->gyro_ang->z);
 }
