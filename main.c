@@ -1,3 +1,5 @@
+#include <FreeRTOS.h>
+
 #include "hardware/pwm.h"
 #include "hardware/uart.h"
 
@@ -11,43 +13,27 @@
 #include "include/sensors/gyroscope.h"
 
 int main() {
+  // set up the stdio for the RP2040
   stdio_init_all();
-  // sleep_ms(500);
+  TickType_t xLastWakeTime = xTaskGetTickCount();
 
+  // ~~~ Setup ~~~ //
   led_setup();
-  servo_setup();
-  imu_setup();
+  // servo_setup();
+  // imu_setup();
   // motor_setup();
 
-  // uart_gps_init();
-  // sleep_ms(7 * 60 * 1000);
-  // configure_gps();
+  // ~~~ Loop ~~~ //
+  int led_delay = 1000;
+  void *arr[2] = {&led_delay, &xLastWakeTime};
+  xTaskCreate(led_loop, "led_loop", 256, (void *)arr, 1, NULL);
 
-  // GPSData gps_data = {0};
-  // int readings = 0;
+  // ~~~ SCHEUDLER ~~~ //
+  vTaskStartScheduler();
 
-  absolute_time_t last_time = get_absolute_time();
-
-  while (true) {
-    led_loop();
-    servo_loop();
-    print_gyro(last_time);
-    // motor_loop();
-
-    // printf("READING\n %d", readings++);
-    // process_gps_data(&gps_data);
-
-    // if (gps_data.is_valid)
-    // {
-    //   printf("GPS Location:\n");
-    //   printf("Latitude: %.6f\n", gps_data.latitude);
-    //   printf("Longitude: %.6f\n", gps_data.longitude);
-    //   gps_data.is_valid = false;
-    // }
-
-    // printf("*******************************************************************\n");
-    // sleep_ms(30 * 1000);
-  }
+  // ~~~ Main Loop ~~~ //
+  while (1) {
+  };
 
   return 0;
 }
