@@ -5,56 +5,45 @@
 #include <string.h>
 #include "../../include/sensors/gps.h"
 
-void uart_gps_init() {
+void uart_gps_init()
+{
   // Initialize UART with more robust configuration
   uart_init(UART_ID, BAUD_RATE);
 
   // gpio_set_function(UART_TX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_TX_PIN));
   // gpio_set_function(UART_RX_PIN, UART_FUNCSEL_NUM(UART_ID, UART_RX_PIN));
 
-  gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+  // gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
   gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 
-  uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
-  uart_set_fifo_enabled(UART_ID, true);
-
   uart_set_hw_flow(UART_ID, false, false);
-  uart_set_irq_enables(UART_ID, true, false);
+  uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
+  // uart_set_irq_enables(UART_ID, true, false);
+  uart_set_fifo_enabled(UART_ID, true);
 }
 
-void send_gps_command(const char *command) {
-  uart_puts(UART_ID, command);
-  uart_puts(UART_ID, "\r\n");
-}
-
-void configure_gps() {
-  // Enable $GPGGA (Global Positioning System Fix Data)
-  send_gps_command("$PUBX,40,GGA,1,1,1,1,1,1*1D");
-  sleep_ms(250);
-
-  // Enable $GPRMC (Recommended Minimum Specific GPS/Transit Data)
-  send_gps_command("$PUBX,40,RMC,1,1,1,1,1,1*1D");
-  sleep_ms(250);
-}
-
-bool validate_nmea_checksum(char *nmea_string) {
+bool validate_nmea_checksum(char *nmea_string)
+{
   int len = strlen(nmea_string);
   printf("Checksum Validation - String Length: %d\n", len);
   printf("Full NMEA String: %s", nmea_string);
 
-  if (len < 7) {
+  if (len < 7)
+  {
     printf("Invalid: Too short (< 7 chars)\n");
     return false;
   }
 
   char *checksum_ptr = strchr(nmea_string, '*');
-  if (!checksum_ptr) {
+  if (!checksum_ptr)
+  {
     printf("Invalid: No checksum marker (*) found\n");
     return false;
   }
 
   uint8_t calculated_checksum = 0;
-  for (char *p = nmea_string + 1; p < checksum_ptr; p++) {
+  for (char *p = nmea_string + 1; p < checksum_ptr; p++)
+  {
     calculated_checksum ^= *p;
   }
 
@@ -70,7 +59,8 @@ bool validate_nmea_checksum(char *nmea_string) {
   return is_valid;
 }
 
-void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord) {
+void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord)
+{
   // Convert NMEA coordinate to decimal degrees
   float degrees = atof(nmea_coord) / 100.0;
   int int_degrees = (int)degrees;
@@ -79,25 +69,29 @@ void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord) {
   *decimal_coord = int_degrees + (minutes / 60.0);
 }
 
-bool parse_nmea_gps(char *nmea_string, GPSData *gps_data) {
+bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
+{
 
   // printf("Entered Parsing\n ");
   // Validate NMEA checksum
-  if (!validate_nmea_checksum(nmea_string)) {
+  if (!validate_nmea_checksum(nmea_string))
+  {
     printf("Invalid NMEA Checksum\n");
     return false;
   }
 
   // printf("NMEA String: %s\n", nmea_string);
 
-  if (strncmp(nmea_string, "$GPRMC", 6) == 0) {
+  if (strncmp(nmea_string, "$GPRMC", 6) == 0)
+  {
     char *token;
     char *tokens[12] = {0};
     int token_count = 0;
 
     // Tokenize the string
     token = strtok(nmea_string, ",");
-    while (token != NULL && token_count < 12) {
+    while (token != NULL && token_count < 12)
+    {
       tokens[token_count++] = token;
 
       // printf("Token %d: %s\n", token_count, token);
@@ -106,16 +100,19 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data) {
     }
 
     // Check if we have enough tokens and data is valid
-    if (token_count >= 12 && strcmp(tokens[2], "A") == 0) {
+    if (token_count >= 12 && strcmp(tokens[2], "A") == 0)
+    {
       // Latitude
-      if (strlen(tokens[3]) > 0) {
+      if (strlen(tokens[3]) > 0)
+      {
         convert_nmea_to_decimal(tokens[3], &gps_data->latitude);
         if (tokens[4][0] == 'S')
           gps_data->latitude = -gps_data->latitude;
       }
 
       // Longitude
-      if (strlen(tokens[5]) > 0) {
+      if (strlen(tokens[5]) > 0)
+      {
         convert_nmea_to_decimal(tokens[5], &gps_data->longitude);
         if (tokens[6][0] == 'W')
           gps_data->longitude = -gps_data->longitude;
@@ -129,14 +126,16 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data) {
   return false;
 }
 
-void process_gps_data(GPSData *gps_data) {
+void process_gps_data(GPSData *gps_data)
+{
 
   printf("UART Readable: %d\n", uart_is_readable(UART_ID));
 
   char nmea_buffer[MAX_NMEA_LENGTH];
   int chars_read = 0;
 
-  while (uart_is_readable(UART_ID) && chars_read < MAX_NMEA_LENGTH - 1) {
+  while (uart_is_readable(UART_ID) && chars_read < MAX_NMEA_LENGTH - 1)
+  {
     // printf("IF 1");
 
     char c = uart_getc(UART_ID);
@@ -145,11 +144,13 @@ void process_gps_data(GPSData *gps_data) {
     // printf("IF 1.5");
     printf("%c, %d\n", c, c);
 
-    if ((int)c == 10) {
+    if ((int)c == 10)
+    {
       // printf("%c", nmea_buffer[chars_read]);
       nmea_buffer[chars_read + 1] = '\0';
 
-      if (parse_nmea_gps(nmea_buffer, gps_data)) {
+      if (parse_nmea_gps(nmea_buffer, gps_data))
+      {
         // printf("IF 3");
         // Optional: Add logging or further processing
         printf("Valid GPS Data Received\n");
@@ -157,7 +158,9 @@ void process_gps_data(GPSData *gps_data) {
 
       chars_read = 0;
       break;
-    } else {
+    }
+    else
+    {
       chars_read++;
     }
   }

@@ -6,47 +6,49 @@
 #include "include/actuators/led.h"
 #include "include/actuators/motor.h"
 #include "include/actuators/servo.h"
+#include "include/constants.h"
 
 #include "include/sensors/gps.h"
 #include "include/sensors/gyroscope.h"
 
-int main() {
+int main()
+{
   stdio_init_all();
   // sleep_ms(500);
 
   led_setup();
-  servo_setup();
-  imu_setup();
+  // servo_setup();
+  // imu_setup();
   // motor_setup();
 
-  // uart_gps_init();
-  // sleep_ms(7 * 60 * 1000);
-  // configure_gps();
+  uart_gps_init();
+  sleep_ms(7 * 60 * 1000);
 
-  // GPSData gps_data = {0};
-  // int readings = 0;
+  GPSData gps_data = {0};
+  int readings = 0;
 
   absolute_time_t last_time = get_absolute_time();
 
-  while (true) {
+  while (true)
+  {
     led_loop();
-    servo_loop();
-    print_gyro(last_time);
+    // servo_loop();
+    // print_gyro(last_time);
     // motor_loop();
 
-    // printf("READING\n %d", readings++);
-    // process_gps_data(&gps_data);
+    printf("READING\n %d", readings++);
+    process_gps_data(&gps_data);
 
-    // if (gps_data.is_valid)
-    // {
-    //   printf("GPS Location:\n");
-    //   printf("Latitude: %.6f\n", gps_data.latitude);
-    //   printf("Longitude: %.6f\n", gps_data.longitude);
-    //   gps_data.is_valid = false;
-    // }
+    if (gps_data.is_valid)
+    {
+      printf("GPS Location:\n");
+      printf("Latitude: %.6f\n", gps_data.latitude);
+      printf("Longitude: %.6f\n", gps_data.longitude);
+      gps_data.is_valid = false;
+    }
 
-    // printf("*******************************************************************\n");
-    // sleep_ms(30 * 1000);
+    printf(MAGENTA, "*******************************************************************\n");
+    sleep_ms(30 * 1000);
   }
 
   return 0;
