@@ -4,6 +4,10 @@
     "led.h": "c",
     "stdlib.h": "c",
     "pwm.h": "c",
-    "gps-neo6m.h": "c"
+    "gps-neo6m.h": "c",
+    "uart.h": "c",
+    "stdio.h": "c",
+    "gps.h": "c",
+    "circularbuffer.h": "c"
   }
 }

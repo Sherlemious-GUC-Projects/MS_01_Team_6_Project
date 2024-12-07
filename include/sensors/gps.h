@@ -1,6 +1,7 @@
 #pragma once
 
-#include <stdbool.h>
+#include "../../include/circularBuffer.h"
+#include "../../include/constants.h"
 
 #define UART_ID uart1
 #define BAUD_RATE 9600
@@ -22,7 +23,7 @@ void uart_gps_init();
 bool parse_nmea_gps(char *nmea_string, GPSData *gps_data);
 
 // Process and extract GPS data
-void process_gps_data(GPSData *gps_data);
+void process_gps_data(GPSData *gps_data, CircularBuffer *cb);
 
 // Additional utility functions
 void convert_nmea_to_decimal(char *nmea_coord, float *decimal_coord);

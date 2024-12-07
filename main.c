@@ -25,6 +25,9 @@ int main()
   sleep_ms(7 * 60 * 1000);
 
   GPSData gps_data = {0};
+  CircularBuffer *cb;
+  buffer_init(cb);
+
   int readings = 0;
 
   absolute_time_t last_time = get_absolute_time();
@@ -36,8 +39,8 @@ int main()
     // print_gyro(last_time);
     // motor_loop();
 
-    printf("READING\n %d", readings++);
-    process_gps_data(&gps_data);
+    printf("READING: %d\n", readings++);
+    process_gps_data(&gps_data, cb);
 
     if (gps_data.is_valid)
     {
@@ -47,7 +50,7 @@ int main()
       gps_data.is_valid = false;
     }
 
-    printf(MAGENTA, "*******************************************************************\n");
+    printf(MAGENTA "*******************************************************************\n");
     sleep_ms(30 * 1000);
   }
 

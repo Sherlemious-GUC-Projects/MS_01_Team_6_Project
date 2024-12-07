@@ -126,42 +126,81 @@ bool parse_nmea_gps(char *nmea_string, GPSData *gps_data)
   return false;
 }
 
-void process_gps_data(GPSData *gps_data)
+void process_gps_data(GPSData *gps_data, CircularBuffer *cb)
 {
-
-  printf("UART Readable: %d\n", uart_is_readable(UART_ID));
-
   char nmea_buffer[MAX_NMEA_LENGTH];
   int chars_read = 0;
 
-  while (uart_is_readable(UART_ID) && chars_read < MAX_NMEA_LENGTH - 1)
+  // Read characters from UART and write to circular buffer
+  printf("UART Readable: %d\n", uart_is_readable(UART_ID));
+  while (uart_is_readable(UART_ID))
   {
-    // printf("IF 1");
-
     char c = uart_getc(UART_ID);
-    nmea_buffer[chars_read] = c;
+    buffer_write(cb, c);
+    printf(CYAN "%c, %d\n", c, c);
+  }
 
-    // printf("IF 1.5");
-    printf("%c, %d\n", c, c);
+  // Process complete NMEA sentences from circular buffer
+  while (!buffer_is_empty(cb))
+  {
+    char c = buffer_read(cb);
 
-    if ((int)c == 10)
+    if (c == '\n')
     {
-      // printf("%c", nmea_buffer[chars_read]);
-      nmea_buffer[chars_read + 1] = '\0';
-
       if (parse_nmea_gps(nmea_buffer, gps_data))
       {
-        // printf("IF 3");
-        // Optional: Add logging or further processing
         printf("Valid GPS Data Received\n");
       }
 
       chars_read = 0;
-      break;
     }
     else
     {
       chars_read++;
+      if (chars_read >= MAX_NMEA_LENGTH - 1)
+      {
+        chars_read = 0; // Reset if buffer overflows
+      }
     }
   }
 }
+
+// void process_gps_data(GPSData *gps_data)
+// {
+
+//   printf("UART Readable: %d\n", uart_is_readable(UART_ID));
+
+//   char nmea_buffer[MAX_NMEA_LENGTH];
+//   int chars_read = 0;
+
+//   while (uart_is_readable(UART_ID) && chars_read < MAX_NMEA_LENGTH - 1)
+//   {
+//     // printf("IF 1");
+
+//     char c = uart_getc(UART_ID);
+//     nmea_buffer[chars_read] = c;
+
+//     // printf("IF 1.5");
+//     printf("%c, %d\n", c, c);
+
+//     if ((int)c == 10)
+//     {
+//       // printf("%c", nmea_buffer[chars_read]);
+//       nmea_buffer[chars_read + 1] = '\0';
+
+//       if (parse_nmea_gps(nmea_buffer, gps_data))
+//       {
+//         // printf("IF 3");
+//         // Optional: Add logging or further processing
+//         printf("Valid GPS Data Received\n");
+//       }
+
+//       chars_read = 0;
+//       break;
+//     }
+//     else
+//     {
+//       chars_read++;
+//     }
+//   }
+// }

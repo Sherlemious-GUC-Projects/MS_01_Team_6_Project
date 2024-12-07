@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD 17)
 pico_sdk_init()
 
 # Tell CMake where to find the executable source file
-add_executable(${PROJECT_NAME} main.c src/sensors/gyroscope.c src/sensors/gps.c src/actuators/led.c src/actuators/motor.c src/actuators/servo.c)
+add_executable(${PROJECT_NAME} main.c src/sensors/gyroscope.c src/sensors/gps.c src/actuators/led.c src/actuators/motor.c src/actuators/servo.c src/circularBuffer.c)
 
 
 # Create map/bin/hex/uf2 files
