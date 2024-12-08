@@ -1,5 +1,5 @@
+#include "../include/motor.h"
 #include "hardware/pwm.h"
-#include "../../include/actuators/motor.h"
 
 void motor_setup() {
   gpio_init(MOTOR_DIR_PIN1);
@@ -35,13 +35,10 @@ void motor_control(uint16_t speed, bool forward) {
 
 void motor_loop() {
   // Set the motor speed to 50% and direction to forward
-  motor_control(127, true);
+  motor_control(64, true);
   sleep_ms(2000);
 
   // Set the motor speed to 50% and direction to reverse
-  motor_control(127, false);
+  motor_control(64, false);
   sleep_ms(2000);
-
-  // Set the motor to MAX speed and direction to forward
-  motor_control(255, true);
 }
