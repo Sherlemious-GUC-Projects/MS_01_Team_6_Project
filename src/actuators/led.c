@@ -1,5 +1,7 @@
-#include "../../include/actuators/led.h"
+#include "FreeRTOS.h"
 #include "pico/stdlib.h"
+
+#include "../../include/actuators/led.h"
 
 void led_setup() {
   gpio_init(LED_PIN);
@@ -7,8 +9,11 @@ void led_setup() {
 }
 
 void led_loop() {
-  gpio_put(LED_PIN, 1);
-  sleep_ms(2000);
-  gpio_put(LED_PIN, 0);
-  sleep_ms(200);
+  while (1) {
+    gpio_put(LED_PIN, 1);
+    vTaskDelay(pdMS_TO_TICKS(200));
+    gpio_put(LED_PIN, 0);
+    vTaskDelay(pdMS_TO_TICKS(200));
+    sleep_ms(200);
+  }
 }

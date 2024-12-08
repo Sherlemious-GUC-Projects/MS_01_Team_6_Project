@@ -30,6 +30,7 @@ target_include_directories(${ProjectName} PRIVATE
 ### Link libraries ###
 target_link_libraries(${ProjectName} 
     pico_stdlib 
+    hardware_pwm
     FreeRTOS-Kernel-Heap4 
     )
 
