@@ -8,9 +8,8 @@ void led_setup() {
 void led_loop() {
   while (1) {
     gpio_put(LED_PIN, 1);
-    vTaskDelay(pdMS_TO_TICKS(200));
+    sleep_ms(200);
     gpio_put(LED_PIN, 0);
-    vTaskDelay(pdMS_TO_TICKS(200));
     sleep_ms(200);
   }
 }

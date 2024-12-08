@@ -1,9 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "FreeRTOS.h"
-#include "task.h"
-
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
 #include "hardware/uart.h"
@@ -20,12 +17,5 @@ int main() {
   // ~~~ INITIALIZATION ~~~ //
   led_setup();
 
-  // ~~~ TASKS ~~~ //
-  xTaskCreate(led_loop, "LED_Task", 256, NULL, 1, NULL);
-
-  // ~~~ START SCHEDULER ~~~ //
-  vTaskStartScheduler();
-
-  while (1) {
-  };
+  led_loop();
 }
