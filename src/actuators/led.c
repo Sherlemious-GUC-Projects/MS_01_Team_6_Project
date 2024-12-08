@@ -1,6 +1,3 @@
-#include "FreeRTOS.h"
-#include "pico/stdlib.h"
-
 #include "../../include/actuators/led.h"
 
 void led_setup() {

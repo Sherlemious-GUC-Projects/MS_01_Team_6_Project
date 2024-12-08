@@ -1,7 +1,13 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "FreeRTOS.h"
+#include "task.h"
+
+#include "hardware/i2c.h"
+#include "hardware/pwm.h"
 #include "hardware/uart.h"
 #include "pico/stdlib.h"
-#include "task.h"
 
 #include "src/actuators/led.c"
 #include "src/actuators/motor.c"
@@ -13,11 +19,9 @@ int main() {
 
   // ~~~ INITIALIZATION ~~~ //
   led_setup();
-  motor_setup();
 
   // ~~~ TASKS ~~~ //
   xTaskCreate(led_loop, "LED_Task", 256, NULL, 1, NULL);
-  xTaskCreate(motor_loop, "Motor_Task", 256, NULL, 1, NULL);
 
   // ~~~ START SCHEDULER ~~~ //
   vTaskStartScheduler();

@@ -1,5 +1,4 @@
 #include "../../include/actuators/motor.h"
-#include "hardware/pwm.h"
 
 void motor_setup() {
   gpio_init(MOTOR_DIR_PIN1);

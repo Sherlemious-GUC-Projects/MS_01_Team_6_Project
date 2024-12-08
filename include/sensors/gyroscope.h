@@ -1,9 +1,5 @@
 #pragma once
 
-#include "hardware/i2c.h"
-#include "pico/stdlib.h"
-#include <stdio.h>
-
 // LSM6DSL I2C Address
 #define LSM6DSL_ADDR 0x6A
 

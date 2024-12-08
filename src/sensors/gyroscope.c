@@ -1,9 +1,5 @@
 #include "../../include/sensors/gyroscope.h"
 #include "../../include/constants.h"
-#include "hardware/i2c.h"
-#include "pico/stdlib.h"
-#include <stdio.h>
-#include <stdlib.h>
 
 data_t *imu_setup(void) {
   // Initialize I2C
