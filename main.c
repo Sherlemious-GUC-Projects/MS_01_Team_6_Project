@@ -25,9 +25,6 @@ int main()
   sleep_ms(7 * 60 * 1000);
 
   GPSData gps_data = {0};
-  CircularBuffer *cb;
-  buffer_init(cb);
-
   int readings = 0;
 
   absolute_time_t last_time = get_absolute_time();
@@ -40,7 +37,7 @@ int main()
     // motor_loop();
 
     printf("READING: %d\n", readings++);
-    process_gps_data(&gps_data, cb);
+    process_gps_data(&gps_data);
 
     if (gps_data.is_valid)
     {
