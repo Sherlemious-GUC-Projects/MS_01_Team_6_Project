@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { MapPin, Car, Navigation, Play } from "lucide-react";
 import Map from "./components/Map";
+import axios from "axios";
 
 interface ILocation {
   lat: number;
@@ -10,33 +11,54 @@ interface ILocation {
 }
 
 const App: React.FC = () => {
+  const picoIpAddress = import.meta.env.VITE_PICO_IP_ADDRESS;
   const [carLocation, setCarLocation] = useState<ILocation | null>(null);
   const [destinationLocation, setDestinationLocation] =
     useState<ILocation | null>(null);
   const [isMoving, setIsMoving] = useState(false);
   const [compassHeading, setCompassHeading] = useState<number | null>(null);
 
-  const sendCoordinatesToArduino = async (location: ILocation) => {
+  const sendCoordinatesToPico = async (location: ILocation) => {
     try {
-      console.log("Coordinates sent successfully");
+      const payload = {
+        latitude: location.lat,
+        longitude: location.lng,
+        name: location.name,
+        heading: compassHeading,
+      };
+
+      const response = await axios.post(picoIpAddress, payload, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.status === 200) {
+        console.log(response.data);
+      }
     } catch (error) {
-      console.error("Error sending coordinates:", error);
+      console.error("Error sending coordinates to Pico W:", error);
       alert("Could not send location to the car");
     }
   };
 
   const handleDestinationChange = (location: ILocation) => {
     setDestinationLocation(location);
-    sendCoordinatesToArduino(location);
   };
 
   const handleStartMoving = () => {
-    if (destinationLocation) {
-      setIsMoving(true);
-      console.log("Starting movement to:", destinationLocation);
-    } else {
+    if (!destinationLocation) {
       alert("Please select a destination first!");
+      return;
     }
+    if (!compassHeading) {
+      alert("Please enable compass access!");
+      return;
+    }
+
+    setIsMoving(true);
+    sendCoordinatesToPico(destinationLocation);
+    console.log("Starting movement to:", destinationLocation);
   };
 
   const handleOrientation = (event: DeviceOrientationEvent) => {
@@ -46,9 +68,13 @@ const App: React.FC = () => {
   };
 
   const requestCompassAccess = async () => {
-    if (typeof DeviceOrientationEvent.requestPermission === "function") {
+    if (
+      typeof (DeviceOrientationEvent as any).requestPermission === "function"
+    ) {
       try {
-        const permission = await DeviceOrientationEvent.requestPermission();
+        const permission = await (
+          DeviceOrientationEvent as any
+        ).requestPermission();
         if (permission === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
         } else {
@@ -114,19 +140,6 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <button
-            onClick={handleStartMoving}
-            disabled={!destinationLocation || isMoving}
-            className={`w-full py-3 rounded-xl text-white font-bold flex items-center justify-center space-x-2 transition-all duration-300 ${
-              destinationLocation && !isMoving
-                ? "bg-blue-600 hover:bg-blue-700 active:scale-95"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
-          >
-            <Play size={24} />
-            <span>{isMoving ? "Moving..." : "Start Moving"}</span>
-          </button>
-
           <div className="bg-white rounded-xl shadow-md p-4 space-y-2">
             <h2 className="text-xl font-semibold text-gray-800 flex items-center">
               <Navigation className="mr-2 text-blue-600" size={24} />
@@ -145,6 +158,19 @@ const App: React.FC = () => {
               </button>
             )}
           </div>
+
+          <button
+            onClick={handleStartMoving}
+            disabled={!destinationLocation || !compassHeading || isMoving}
+            className={`w-full py-3 rounded-xl text-white font-bold flex items-center justify-center space-x-2 transition-all duration-300 ${
+              destinationLocation && compassHeading && !isMoving
+                ? "bg-blue-600 hover:bg-blue-700 active:scale-95"
+                : "bg-gray-400 cursor-not-allowed"
+            }`}
+          >
+            <Play size={24} />
+            <span>{isMoving ? "Moving..." : "Start Moving"}</span>
+          </button>
         </div>
       </main>
 
