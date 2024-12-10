@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "main.C": "cpp",
+    "led.h": "c",
+    "stdlib.h": "c",
+    "pwm.h": "c",
+    "gps-neo6m.h": "c"
+  }
+}
