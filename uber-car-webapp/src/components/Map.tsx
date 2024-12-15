@@ -25,7 +25,7 @@ const BlueDot: React.FC<{ position: google.maps.LatLngLiteral }> = ({
   );
 };
 
-export type Location = { lat: number; lng: number; name: string };
+export type Location = { lat: number; lng: number; name?: string };
 
 /**
  * A map component that allows the user to select a location by clicking on the map.
@@ -49,7 +49,7 @@ export default function Map({
   defaultUserLocation?: { lat: number; lng: number };
   defaultCenter?: { lat: number; lng: number };
   value?: Location;
-  onChange?: (location: Location) => void;
+  onChange: (carLocation: Location, destination: Location) => void;
 }) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
   const [userLocation, setUserLocation] = useState<
@@ -108,7 +108,7 @@ export default function Map({
           "You need to provide an onChange callback to update the selected location.",
         );
       } else {
-        onChange?.({ lat, lng, name });
+        onChange?.(userLocation ?? {lat, lng}, { lat, lng, name });
         setSelectedLocation({ lat, lng, name });
       }
     }
