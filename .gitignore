@@ -1,2 +1,5 @@
-/build/
+build/*
+lib/*
 /node_modules/
+/uber-car-webapp/node_modules/
+
