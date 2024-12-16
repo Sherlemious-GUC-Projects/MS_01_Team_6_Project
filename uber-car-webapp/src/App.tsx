@@ -11,7 +11,7 @@ interface ILocation {
 }
 
 const App: React.FC = () => {
-  const picoIpAddress = import.meta.env.VITE_PICO_IP_ADDRESS;
+  const picoIpAddress = "http://192.168.106.90:80";
   const [carLocation, setCarLocation] = useState<ILocation | null>(null);
   const [destinationLocation, setDestinationLocation] =
     useState<ILocation | null>(null);
