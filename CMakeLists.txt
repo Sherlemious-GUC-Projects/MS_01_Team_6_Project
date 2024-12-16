@@ -16,6 +16,7 @@ pico_sdk_init()
 # Tell CMake where to find the executable source file
 add_executable(${PROJECT_NAME} 
     main.c 
+    # src/wifi.c
     src/sensors/gyroscope.c 
     src/sensors/gps.c 
     src/actuators/led.c 
@@ -28,6 +29,8 @@ pico_add_extra_outputs(${PROJECT_NAME})
 
 # Link to pico_stdlib (gpio, time, etc. functions)
 target_link_libraries(${PROJECT_NAME} 
+    # pico_cyw43_arch_lwip_threadsafe_background
+    # pico_lwip_http
     hardware_i2c
     hardware_uart
     hardware_pwm
