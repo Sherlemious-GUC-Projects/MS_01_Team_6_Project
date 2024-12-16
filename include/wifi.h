@@ -24,7 +24,6 @@
 #define LED_PIN 0
 
 extern char request_body[BUF_SIZE];
-// extern bool request_received;
 
 typedef struct TCP_SERVER_T_
 {
