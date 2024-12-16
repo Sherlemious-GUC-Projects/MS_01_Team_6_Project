@@ -34,10 +34,10 @@ void motor_control(uint16_t speed, bool forward) {
 
 void motor_loop() {
   // Set the motor speed to 50% and direction to forward
-  motor_control(64, true);
+  motor_control(255, true);
   sleep_ms(2000);
 
   // Set the motor speed to 50% and direction to reverse
-  motor_control(64, false);
+  motor_control(255, false);
   sleep_ms(2000);
 }
