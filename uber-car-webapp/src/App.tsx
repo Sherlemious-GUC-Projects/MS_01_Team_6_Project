@@ -6,7 +6,7 @@ import axios from "axios";
 interface ILocation {
   lat: number;
   lng: number;
-  name: string;
+  name?: string;
   timestamp?: Date;
 }
 
@@ -21,15 +21,21 @@ const App: React.FC = () => {
   const sendCoordinatesToPico = async (location: ILocation) => {
     try {
       const payload = {
-        latitude: location.lat,
-        longitude: location.lng,
-        name: location.name,
+        car: {
+          latitude: carLocation?.lat,
+          longitude: carLocation?.lng,
+        },
+        destination: {
+          latitude: location.lat,
+          longitude: location.lng,
+        },
         heading: compassHeading,
       };
 
-      const response = await axios.post(picoIpAddress, payload, {
+      const response = await axios.post(picoIpAddress, JSON.stringify(payload), {
         headers: {
           "Content-Type": "application/json",
+          'Accept': "application/json",
         },
       });
 
@@ -42,17 +48,15 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDestinationChange = (location: ILocation) => {
-    setDestinationLocation(location);
+  const handleDestinationChange = (carLocation: ILocation, destination: ILocation) => {
+    setCarLocation(carLocation);
+    setDestinationLocation(destination);
+    setIsMoving(false);
   };
 
   const handleStartMoving = () => {
     if (!destinationLocation) {
       alert("Please select a destination first!");
-      return;
-    }
-    if (!compassHeading) {
-      alert("Please enable compass access!");
       return;
     }
 
@@ -122,6 +126,21 @@ const App: React.FC = () => {
         </div>
 
         <div className="lg:w-1/3 space-y-4">
+          {carLocation && (
+            <div className="bg-white rounded-xl shadow-md p-4 space-y-2">
+              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+                <Navigation className="mr-2 text-blue-600" size={24} />
+                Current Location Details
+              </h2>
+              <p>
+                <strong>Latitude:</strong> {carLocation.lat.toFixed(4)}
+              </p>
+              <p>
+                <strong>Longitude:</strong> {carLocation.lng.toFixed(4)}
+              </p>
+            </div>
+          )}
+
           {destinationLocation && (
             <div className="bg-white rounded-xl shadow-md p-4 space-y-2">
               <h2 className="text-xl font-semibold text-gray-800 flex items-center">
@@ -161,9 +180,9 @@ const App: React.FC = () => {
 
           <button
             onClick={handleStartMoving}
-            disabled={!destinationLocation || !compassHeading || isMoving}
+            disabled={!destinationLocation || isMoving}
             className={`w-full py-3 rounded-xl text-white font-bold flex items-center justify-center space-x-2 transition-all duration-300 ${
-              destinationLocation && compassHeading && !isMoving
+              destinationLocation && !isMoving
                 ? "bg-blue-600 hover:bg-blue-700 active:scale-95"
                 : "bg-gray-400 cursor-not-allowed"
             }`}

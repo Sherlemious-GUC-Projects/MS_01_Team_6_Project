@@ -3,6 +3,7 @@
 
 #include "pico/stdlib.h"
 
+// #include "include/wifi.h"
 #include "include/actuators/led.h"
 #include "include/actuators/motor.h"
 #include "include/actuators/servo.h"
@@ -14,9 +15,17 @@
 int main()
 {
   stdio_init_all();
-  // sleep_ms(500);
 
-  led_setup();
+  // if (wifi_setup())
+  // {
+  //     return 1;
+  // }
+
+  // run_tcp_server_test();
+
+  // printf(MAGENTA "Received request: %s\n", request_body);
+
+    led_setup();
   // servo_setup();
   // imu_setup();
   // motor_setup();

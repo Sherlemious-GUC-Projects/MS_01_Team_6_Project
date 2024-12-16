@@ -16,6 +16,8 @@ class PicoWWebReceiver:
         self.ssid = ssid
         self.password = password
         
+        self.init_wifi()
+        
     def init_wifi(self):
         self.wlan.active(True)
         self.wlan.connect(self.ssid, self.password)
@@ -31,7 +33,6 @@ class PicoWWebReceiver:
         if self.wlan.status() != 3:
             raise RuntimeError('network connection failed')
         else:
-            print('connected')
             status = self.wlan.ifconfig()
             print('ip = ' + status[0])
         
@@ -46,7 +47,8 @@ class PicoWWebReceiver:
                 "HTTP/1.1 200 OK\r\n"
                 "Access-Control-Allow-Origin: *\r\n"
                 "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
-                "Access-Control-Allow-Headers: Content-Type\r\n"
+                "Access-Control-Allow-Headers: Content-Type, Accept\r\n"
+                "Access-Control-Max-Age: 3600\r\n"
             )
 
             # Handle OPTIONS preflight
@@ -69,20 +71,12 @@ class PicoWWebReceiver:
                     if header.lower().startswith(b'content-length:'):
                         content_length = int(header.decode().split(':')[1].strip())
 
-                # Read body
-                body = await reader.read(content_length)
-                
-                try:
-                    # Parse JSON
-                    parsed_data = json.loads(body.decode('utf-8'))
-                    print('Received data:', parsed_data)
-                except json.JSONDecodeError:
-                    print('Invalid JSON received')
-                    parsed_data = {}
+                body = await reader.read(content_length)                
+                parsed_data = json.loads(body.decode('utf-8'))
+                print('Received data:', parsed_data)
 
                 # Prepare response
                 response_body = json.dumps({
-                    'status': 'success', 
                     'message': 'Pico W received location and compass readings successfully 🎉🎉'
                 })
 
@@ -119,8 +113,6 @@ async def main():
     WIFI_PASSWORD = ''
     
     receiver = PicoWWebReceiver(WIFI_SSID, WIFI_PASSWORD)
-    
-    receiver.init_wifi()
 
     server = asyncio.start_server(receiver.handle_client, "0.0.0.0", 80)
     asyncio.create_task(server)
