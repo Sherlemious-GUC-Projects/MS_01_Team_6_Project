@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MapPin, Car, Navigation, Play } from "lucide-react";
+import { MapPin, Car, Navigation, Play, Compass } from "lucide-react";
 import Map from "./components/Map";
 import axios from "axios";
 
@@ -17,6 +17,7 @@ const App: React.FC = () => {
     useState<ILocation | null>(null);
   const [isMoving, setIsMoving] = useState(false);
   const [compassHeading, setCompassHeading] = useState<number | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   const sendCoordinatesToPico = async (location: ILocation) => {
     try {
@@ -99,24 +100,60 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex flex-col">
-      <header className="bg-white shadow-md p-4 flex items-center justify-between">
+    <div className={`
+      min-h-screen 
+      ${isDarkMode
+        ? 'bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100'
+        : 'bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900'
+      } 
+      flex flex-col transition-colors duration-300 ease-in-out
+    `}>
+      <header className={`
+        ${isDarkMode
+          ? 'bg-gray-800 shadow-2xl border-b border-gray-700'
+          : 'bg-white shadow-md'
+        } 
+        p-4 flex items-center justify-between transition-colors duration-300
+      `}>
         <div className="flex items-center space-x-3">
-          <Car className="text-blue-600" size={32} />
-          <h1 className="text-2xl font-bold text-gray-800">
+          <Car className={`${isDarkMode ? 'text-cyan-400' : 'text-blue-600'}`} size={32} />
+          <h1 className={`text-2xl font-bold ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
             Smart Car Tracker
           </h1>
         </div>
-        {carLocation && (
-          <div className="flex items-center space-x-1 bg-green-100 px-3 py-1 rounded-full">
-            <MapPin size={16} className="text-green-600" />
-            <span className="text-sm text-green-800">Connected</span>
-          </div>
-        )}
+
+        <div className="flex items-center space-x-2">
+          {carLocation && (
+            <div className={`
+              flex items-center space-x-1 
+              ${isDarkMode ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-800'}
+              px-3 py-1 rounded-full
+            `}>
+              <MapPin size={16} className={isDarkMode ? 'text-green-400' : 'text-green-600'} />
+              <span className="text-sm">Connected</span>
+            </div>
+          )}
+
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`
+              p-2 rounded-full transition-all duration-300 
+              ${isDarkMode
+                ? 'bg-gray-700 hover:bg-gray-600 text-yellow-400'
+                : 'bg-gray-200 hover:bg-gray-300 text-blue-600'}
+            `}
+          >
+            {isDarkMode ? '☀️' : '🌙'}
+          </button>
+        </div>
       </header>
 
       <main className="flex-grow flex flex-col lg:flex-row p-4 space-y-4 lg:space-y-0 lg:space-x-4">
-        <div className="lg:w-2/3 h-[500px] bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className={`
+          lg:w-2/3 h-[500px] rounded-xl shadow-2xl overflow-hidden
+          ${isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white'}
+          transition-colors duration-300
+        `}>
           <Map
             className="w-full h-full"
             defaultMark={carLocation || undefined}
@@ -127,9 +164,18 @@ const App: React.FC = () => {
 
         <div className="lg:w-1/3 space-y-4">
           {carLocation && (
-            <div className="bg-white rounded-xl shadow-md p-4 space-y-2">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                <Navigation className="mr-2 text-blue-600" size={24} />
+            <div className={`
+              rounded-xl shadow-md p-4 space-y-2
+              ${isDarkMode
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white'}
+              transition-colors duration-300
+            `}>
+              <h2 className={`
+                text-xl font-semibold flex items-center
+                ${isDarkMode ? 'text-cyan-400' : 'text-blue-600'}
+              `}>
+                <Navigation className="mr-2" size={24} />
                 Current Location Details
               </h2>
               <p>
@@ -142,9 +188,18 @@ const App: React.FC = () => {
           )}
 
           {destinationLocation && (
-            <div className="bg-white rounded-xl shadow-md p-4 space-y-2">
-              <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-                <Navigation className="mr-2 text-blue-600" size={24} />
+            <div className={`
+              rounded-xl shadow-md p-4 space-y-2
+              ${isDarkMode
+                ? 'bg-gray-800 border border-gray-700'
+                : 'bg-white'}
+              transition-colors duration-300
+            `}>
+              <h2 className={`
+                text-xl font-semibold flex items-center
+                ${isDarkMode ? 'text-cyan-400' : 'text-blue-600'}
+              `}>
+                <Navigation className="mr-2" size={24} />
                 Destination Details
               </h2>
               <p>
@@ -159,9 +214,18 @@ const App: React.FC = () => {
             </div>
           )}
 
-          <div className="bg-white rounded-xl shadow-md p-4 space-y-2">
-            <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-              <Navigation className="mr-2 text-blue-600" size={24} />
+          <div className={`
+            rounded-xl shadow-md p-4 space-y-2
+            ${isDarkMode
+              ? 'bg-gray-800 border border-gray-700'
+              : 'bg-white'}
+            transition-colors duration-300
+          `}>
+            <h2 className={`
+              text-xl font-semibold flex items-center
+              ${isDarkMode ? 'text-cyan-400' : 'text-blue-600'}
+            `}>
+              <Compass className="mr-2" size={24} />
               Compass Heading
             </h2>
             {compassHeading !== null ? (
@@ -171,7 +235,12 @@ const App: React.FC = () => {
             ) : (
               <button
                 onClick={requestCompassAccess}
-                className="bg-blue-600 text-white py-2 px-4 rounded"
+                className={`
+                  w-full py-2 px-4 rounded transition-all duration-300
+                  ${isDarkMode
+                    ? 'bg-cyan-800 text-cyan-200 hover:bg-cyan-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'}
+                `}
               >
                 Enable Compass
               </button>
@@ -181,11 +250,15 @@ const App: React.FC = () => {
           <button
             onClick={handleStartMoving}
             disabled={!destinationLocation || isMoving}
-            className={`w-full py-3 rounded-xl text-white font-bold flex items-center justify-center space-x-2 transition-all duration-300 ${
-              destinationLocation && !isMoving
-                ? "bg-blue-600 hover:bg-blue-700 active:scale-95"
-                : "bg-gray-400 cursor-not-allowed"
-            }`}
+            className={`
+              w-full py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all duration-300
+              ${destinationLocation && !isMoving
+                ? (isDarkMode
+                  ? 'bg-cyan-800 text-cyan-200 hover:bg-cyan-700 active:scale-95'
+                  : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95')
+                : 'bg-gray-600 cursor-not-allowed text-gray-400'
+              }
+            `}
           >
             <Play size={24} />
             <span>{isMoving ? "Moving..." : "Start Moving"}</span>
@@ -193,7 +266,12 @@ const App: React.FC = () => {
         </div>
       </main>
 
-      <footer className="bg-white shadow-md p-4 text-center text-gray-600">
+      <footer className={`
+        ${isDarkMode
+          ? 'bg-gray-800 text-gray-400 border-t border-gray-700'
+          : 'bg-white text-gray-600 shadow-md'}
+        p-4 text-center transition-colors duration-300
+      `}>
         © 2024 Smart Car Tracking System
       </footer>
     </div>
