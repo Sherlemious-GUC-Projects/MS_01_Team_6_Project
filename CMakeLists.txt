@@ -16,25 +16,25 @@ pico_sdk_init()
 # Tell CMake where to find the executable source file
 add_executable(${PROJECT_NAME} 
     main.c 
-    # src/wifi.c
+    src/wifi.c
     src/sensors/gyroscope.c 
     src/sensors/gps.c 
     src/actuators/motor.c 
     src/actuators/servo.c
-    # lib/cJson.c
+    lib/cJson.c
 )
 
 # Create map/bin/hex/uf2 files
 pico_add_extra_outputs(${PROJECT_NAME})
 
-# target_include_directories(${PROJECT_NAME} PRIVATE 
-#     ./lib
-# )
+target_include_directories(${PROJECT_NAME} PRIVATE 
+    ./lib
+)
 
 # Link to pico_stdlib (gpio, time, etc. functions)
 target_link_libraries(${PROJECT_NAME} 
-    # pico_cyw43_arch_lwip_threadsafe_background
-    # pico_lwip_http
+    pico_cyw43_arch_lwip_threadsafe_background
+    pico_lwip_http
     hardware_i2c
     hardware_uart
     hardware_pwm
