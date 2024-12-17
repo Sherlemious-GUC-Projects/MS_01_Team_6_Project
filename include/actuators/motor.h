@@ -8,4 +8,5 @@
 // Function Declarations
 void motor_setup();
 void motor_control(uint16_t speed, bool forward);
-void motor_loop();
+void motor_loop(void *ptr);
+void run_for_seconds(void *ptr);

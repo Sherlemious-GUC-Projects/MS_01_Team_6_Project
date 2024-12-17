@@ -21,23 +21,48 @@ void motor_control(uint16_t speed, bool forward) {
   speed = speed > 255 ? 255 : speed;
 
   if (forward) {
-    gpio_put(MOTOR_DIR_PIN1, 1);
-    gpio_put(MOTOR_DIR_PIN2, 0);
-  } else {
-    gpio_put(MOTOR_DIR_PIN1, 0);
-    gpio_put(MOTOR_DIR_PIN2, 1);
+    gpio_put(MOTOR_DIR_PIN1, 1); // Forward direction pin
+    gpio_put(MOTOR_DIR_PIN2, 0); // Forward direction pin
+  } else if (speed > 0) {        // If speed is greater than 0, reverse motor
+    gpio_put(MOTOR_DIR_PIN1, 0); // Reverse direction pin
+    gpio_put(MOTOR_DIR_PIN2, 1); // Reverse direction pin
+  } else {                       // If speed is 0, stop the motor
+    gpio_put(MOTOR_DIR_PIN1, 0); // Both pins low to stop the motor
+    gpio_put(MOTOR_DIR_PIN2, 0); // Both pins low to stop the motor
   }
 
   // set the PWM duty cycle
   pwm_set_gpio_level(MOTOR_PWM_PIN, speed);
 }
 
-void motor_loop() {
-  // Set the motor speed to 50% and direction to forward
-  motor_control(255, true);
-  sleep_ms(2000);
+void motor_loop(void *ptr) {
+  uint16_t *seconds = (uint16_t *)ptr;
+  while (1) {
+    const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
 
-  // Set the motor speed to 50% and direction to reverse
-  motor_control(255, false);
-  sleep_ms(2000);
+    // Set the motor speed to 100% and direction to forward
+    motor_control(255, true);
+    vTaskDelay(xDelay);
+
+    // set the motor speed to 0% and direction to forward
+    motor_control(0, true);
+    vTaskDelay(xDelay);
+
+    // Set the motor speed to 100% and direction to reverse
+    motor_control(255, false);
+    vTaskDelay(xDelay);
+  }
+}
+
+void run_for_seconds(void *ptr) {
+  uint16_t *seconds = (uint16_t *)ptr;
+  const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
+
+  // Set the motor speed to 50% and direction to forward
+  motor_control(255, 1);
+  vTaskDelay(xDelay);
+
+  // turn off the motor
+  motor_control(0, 0);
+  vTaskDelay(xDelay);
 }

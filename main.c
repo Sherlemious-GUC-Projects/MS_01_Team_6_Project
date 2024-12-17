@@ -13,16 +13,7 @@
 #include "src/actuators/motor.c"
 #include "src/sensors/gyroscope.c"
 
-typedef struct location {
-  double latitude;
-  double longitude;
-} location_t;
-
-typedef struct car_info {
-  location_t *source;
-  location_t *destination;
-  double heading;
-} car_info_t;
+#include "src/car_navigation.c"
 
 int main() {
   // ~~~ BETA ~~~ //
@@ -31,14 +22,18 @@ int main() {
       .source = &(location_t){30.0589287, 31.5075884},
       .heading = 0,
   };
+
   // ~~~ SETUP PICO ~~~ //
   stdio_init_all();
 
   // ~~~ INITIALIZATION ~~~ //
+  double distance = euclidean_distance(car_info.source, car_info.destination);
+  /* uint16_t run_time = (uint16_t)calculate_time_to_destination(distance); */
+  uint16_t run_time = 3; // BETA CODE!!!
   motor_setup();
 
   // ~~~ TASKS ~~~ //
-  xTaskCreate(motor_loop, "Motor Loop", 256, NULL, 1, NULL);
+  xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
 
   // ~~~ START SCHEDULER ~~~ //
   vTaskStartScheduler();
