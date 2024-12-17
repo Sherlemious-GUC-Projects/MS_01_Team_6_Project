@@ -1,21 +1,15 @@
 {
     "configurations": [
         {
-            "name": "Win32",
+            "name": "Pico",
             "includePath": [
                 "${workspaceFolder}/**",
-                // "${env:PICO_SDK_PATH}/**",
-                "C:/VSARM/sdk/pico/pico-sdk/**"
-            ],
-            "defines": [
-                "_DEBUG",
-                "UNICODE",
-                "_UNICODE"
+                "${env:PICO_SDK_PATH}/**"
             ],
             "windowsSdkVersion": "10.0.22621.0",
-            "cStandard": "c17",
-            "cppStandard": "c++17",
-            "intelliSenseMode": "windows-msvc-x64",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-arm",
             "configurationProvider": "ms-vscode.cmake-tools"
         }
     ],

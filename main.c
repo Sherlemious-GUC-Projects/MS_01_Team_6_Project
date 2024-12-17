@@ -1,15 +1,15 @@
-#include "hardware/pwm.h"
-#include "hardware/uart.h"
+// #include "hardware/pwm.h"
+// #include "hardware/uart.h"
 
 #include "pico/stdlib.h"
 
 #include "include/wifi.h"
-#include "include/actuators/motor.h"
-#include "include/actuators/servo.h"
+// #include "include/actuators/motor.h"
+// #include "include/actuators/servo.h"
 #include "include/constants.h"
 
-#include "include/sensors/gps.h"
-#include "include/sensors/gyroscope.h"
+// #include "include/sensors/gps.h"
+// #include "include/sensors/gyroscope.h"
 
 #include "lib/cJSON.h"
 

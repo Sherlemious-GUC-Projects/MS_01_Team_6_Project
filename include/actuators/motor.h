@@ -11,6 +11,11 @@
 #define MOTOR_2_DIR_PIN1 12
 #define MOTOR_2_DIR_PIN2 11
 
+#include "pico/stdlib.h"
+#include "hardware/pwm.h"
+#include "FreeRTOS.h"
+#include "task.h"
+
 /**
  * Initialize the motor by setting GPIO pins and PWM configurations.
  * args:
@@ -20,8 +25,7 @@
  * returns:
  *     void
  */
-void motor_initialize(uint MOTOR_DIR_PIN1, uint MOTOR_DIR_PIN2,
-                      uint MOTOR_PWM_PIN);
+void motor_initialize(uint MOTOR_DIR_PIN1, uint MOTOR_DIR_PIN2, uint MOTOR_PWM_PIN);
 
 /**
  * Set up both motors with predefined constants.

@@ -1,10 +1,9 @@
-#include "../../include/actuators/motor.h"
+#include "include/actuators/motor.h"
 
 /**
  * motor_initialize
  */
-void motor_initialize(uint MOTOR_DIR_PIN1, uint MOTOR_DIR_PIN2,
-                      uint MOTOR_PWM_PIN) {
+void motor_initialize(uint MOTOR_DIR_PIN1, uint MOTOR_DIR_PIN2, uint MOTOR_PWM_PIN) {
   // Initialize the GPIO pins
   gpio_init(MOTOR_DIR_PIN1);
   gpio_init(MOTOR_DIR_PIN2);

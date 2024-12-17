@@ -4,6 +4,9 @@
     "led.h": "c",
     "stdlib.h": "c",
     "pwm.h": "c",
-    "gps-neo6m.h": "c"
+    "gps-neo6m.h": "c",
+    "wifi.h": "c",
+    "motor.h": "c",
+    "car_navigation.h": "c"
   }
 }

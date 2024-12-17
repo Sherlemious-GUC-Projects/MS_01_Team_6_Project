@@ -2,6 +2,7 @@
 #define CAR_NAVIGATION_H
 
 #include <math.h>
+#include "constants.h"
 
 /**
  * @file car_navigation.h

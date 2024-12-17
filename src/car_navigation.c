@@ -1,5 +1,4 @@
-#include "../include/car_navigation.h"
-#include <math.h>
+#include "include/car_navigation.h"
 
 /**
  * @brief Calculate the Euclidean distance (in meters) between two GPS
