@@ -33,7 +33,9 @@ int main() {
   motor_setup();
 
   // ~~~ TASKS ~~~ //
-  xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
+  /* xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
+   */
+  xTaskCreate(motor_loop, "Run Motor", 256, (void *)&run_time, 1, NULL);
 
   // ~~~ START SCHEDULER ~~~ //
   vTaskStartScheduler();
