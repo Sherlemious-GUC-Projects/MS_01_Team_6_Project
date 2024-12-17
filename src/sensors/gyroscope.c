@@ -1,9 +1,9 @@
+#include "../../include/sensors/gyroscope.h"
+#include "../../include/constants.h"
 #include "hardware/i2c.h"
 #include "pico/stdlib.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../include/constants.h"
-#include "../../include/sensors/gyroscope.h"
 
 data_t *imu_setup(void) {
   // Initialize I2C
@@ -107,12 +107,16 @@ void print_gyro(absolute_time_t last_time) {
 
   data_t *data = imu_setup();
   get_angular_displacement(last_time, data);
-  
-  printf(MAGENTA "******************************** GYRO CONTENTS ********************************\n" RESET);
-  printf(CYAN "Acceleration (g): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n", 
+
+  printf(MAGENTA "******************************** GYRO CONTENTS "
+                 "********************************\n" RESET);
+  printf(CYAN "Acceleration (g): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW
+              "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n",
          data->acc->x, data->acc->y, data->acc->z);
-  printf(CYAN "Gyroscope (dps): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n", 
+  printf(CYAN "Gyroscope (dps): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW
+              "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n",
          data->gyro_vel->x, data->gyro_vel->y, data->gyro_vel->z);
-  printf(CYAN "Angular Displacement (degrees): X = " YELLOW "%.3f" CYAN ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n\n", 
+  printf(CYAN "Angular Displacement (degrees): X = " YELLOW "%.3f" CYAN
+              ", Y = " YELLOW "%.3f" CYAN ", Z = " YELLOW "%.3f" RESET "\r\n\n",
          data->gyro_ang->x, data->gyro_ang->y, data->gyro_ang->z);
 }
