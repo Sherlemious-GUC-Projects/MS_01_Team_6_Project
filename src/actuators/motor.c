@@ -3,7 +3,8 @@
 /**
  * motor_initialize
  */
-void motor_initialize(uint MOTOR_DIR_PIN1, uint MOTOR_DIR_PIN2, uint MOTOR_PWM_PIN) {
+void motor_initialize(uint MOTOR_DIR_PIN1, uint MOTOR_DIR_PIN2,
+                      uint MOTOR_PWM_PIN) {
   // Initialize the GPIO pins
   gpio_init(MOTOR_DIR_PIN1);
   gpio_init(MOTOR_DIR_PIN2);
@@ -108,6 +109,26 @@ void run_for_seconds(void *ptr) {
   // Set the two motors to 100% speed and forward direction
   motor_control(255, true, 1);
   motor_control(255, true, 2);
+  vTaskDelay(xDelay);
+
+  // Turn off the motors
+  motor_control(0, false, 1);
+  motor_control(0, false, 2);
+  vTaskDelay(xDelay);
+}
+
+/**
+ * rotate car for seconds in direction
+ */
+void rotate_for_seconds(void *ptr) {
+  void **args = (void **)ptr;
+  uint16_t *seconds = (uint16_t *)args[0];
+  int direction = (int)args[1];
+  const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
+
+  // Set the two motors to 100% speed and forward direction
+  motor_control(27, direction, 1);
+  motor_control(27, !direction, 2);
   vTaskDelay(xDelay);
 
   // Turn off the motors

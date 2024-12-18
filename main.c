@@ -82,6 +82,7 @@ int main() {
   run_tcp_server_test();
 
   parse_request(car_info);
+  car_info->heading = fmax(0, fmin(360, car_info->heading));
 
   printf("Car Info: \n\n");
   printf("\tHeading: %f\n", car_info->heading);
@@ -94,6 +95,15 @@ int main() {
 
   // ~~~ INITIALIZATION ~~~ //
   double distance = euclidean_distance(car_info->source, car_info->destination);
+  double bearing = calculate_bearing(car_info->source, car_info->destination);
+  double rotation_time = calculate_time_to_rotate(bearing, car_info->heading);
+  int rotation_direction =
+      calculate_rotation_direction(bearing, car_info->heading);
+  printf("Distance: %f\n", distance);
+  printf("Bearing: %f\n", bearing);
+  printf("Rotation Time: %f\n", rotation_time);
+  printf("Rotation Direction: %d\n", rotation_direction);
+  void *rotation_args[2] = {(void *)&rotation_time, (void *)rotation_direction};
   /* uint16_t run_time = (uint16_t)calculate_time_to_destination(distance); */
   uint16_t run_time = 3; // BETA CODE!!!
   motor_setup();
@@ -101,7 +111,9 @@ int main() {
   // ~~~ TASKS ~~~ //
   /* xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
    */
-  xTaskCreate(motor_loop, "Run Motor", 256, (void *)&run_time, 1, NULL);
+  /* xTaskCreate(motor_loop, "Run Motor", 256, (void *)&run_time, 1, NULL); */
+  xTaskCreate(rotate_for_seconds, "Rotate Car", 256, (void *)rotation_args, 1,
+              NULL);
 
   // ~~~ START SCHEDULER ~~~ //
   vTaskStartScheduler();
