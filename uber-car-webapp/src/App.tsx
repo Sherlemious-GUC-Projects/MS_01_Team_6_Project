@@ -12,7 +12,7 @@ interface ILocation {
 }
 
 const App: React.FC = () => {
-  const picoIpAddress = "http://192.168.129.90:80";
+  const picoIpAddress = "http://192.168.129.228:80";
   const [carLocation, setCarLocation] = useState<ILocation | null>(null);
   const [destinationLocation, setDestinationLocation] =
     useState<ILocation | null>(null);
