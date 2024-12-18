@@ -66,24 +66,7 @@ void parse_request(car_info_t *car_info) {
   cJSON_Delete(json);
 }
 
-int main() {
-  // ~~~ SETUP PICO ~~~ //
-  stdio_init_all();
-
-  car_info_t *car_info = malloc(sizeof(car_info_t));
-  car_info->source = malloc(sizeof(location_t));
-  car_info->destination = malloc(sizeof(location_t));
-
-  sleep_ms(2000);
-  if (wifi_setup()) {
-    return 1;
-  }
-
-  run_tcp_server_test();
-
-  parse_request(car_info);
-  car_info->heading = fmax(0, fmin(360, car_info->heading));
-
+void log_custom(car_info_t *car_info) {
   printf("Car Info: \n\n");
   printf("\tHeading: %f\n", car_info->heading);
   printf("\tSource: \n");
@@ -92,28 +75,59 @@ int main() {
   printf("\tDestination: \n");
   printf("\t\tLatitude: %f\n", car_info->destination->latitude);
   printf("\t\tLongitude: %f\n", car_info->destination->longitude);
+}
 
-  // ~~~ INITIALIZATION ~~~ //
+int main() {
+  // ~~~ SETUP PICO ~~~ //
+  stdio_init_all();
+
+  // ~~~ SETUP structs ~~~ //
+  car_info_t *car_info = malloc(sizeof(car_info_t));
+  car_info->source = malloc(sizeof(location_t));
+  car_info->destination = malloc(sizeof(location_t));
+
+  // ~~~ SETUP WIFI to connect to the internet ~~~ //
+  sleep_ms(2000);
+  if (wifi_setup()) {
+    return 1;
+  }
+
+  // ~~ SETUP TCP SERVER to receive requests ~~~ //
+  run_tcp_server_test();
+
+  // ~~~ PARSE REQUEST ~~~ //
+  parse_request(car_info);
+
+  // ~~~ NORMALIZE HEADING ~~~ //
+  car_info->heading = fmax(0, fmin(360, car_info->heading));
+
+  // ~~~ LOG CAR INFO ~~~ //
+  log_custom(car_info);
+
+  // ~~~ CALCULATE DETAILS ~~~ //
   double distance = euclidean_distance(car_info->source, car_info->destination);
+  uint16_t run_time = (uint16_t)calculate_time_to_destination(distance);
   double bearing = calculate_bearing(car_info->source, car_info->destination);
-  double rotation_time = calculate_time_to_rotate(bearing, car_info->heading);
+  uint16_t rotation_time =
+      (uint16_t)calculate_time_to_rotate(bearing, car_info->heading);
   int rotation_direction =
       calculate_rotation_direction(bearing, car_info->heading);
+  void *rotation_args[2] = {(void *)&rotation_time, (void *)rotation_direction};
+
+  // ~~~ MORE LOGGING ~~~ //
   printf("Distance: %f\n", distance);
+  printf("Run Time: %d\n", run_time);
   printf("Bearing: %f\n", bearing);
   printf("Rotation Time: %f\n", rotation_time);
   printf("Rotation Direction: %d\n", rotation_direction);
-  void *rotation_args[2] = {(void *)&rotation_time, (void *)rotation_direction};
-  /* uint16_t run_time = (uint16_t)calculate_time_to_destination(distance); */
-  uint16_t run_time = 3; // BETA CODE!!!
+
+  // ~~~ SETUP MOTOR ~~~ //
   motor_setup();
 
   // ~~~ TASKS ~~~ //
-  /* xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
-   */
-  /* xTaskCreate(motor_loop, "Run Motor", 256, (void *)&run_time, 1, NULL); */
   xTaskCreate(rotate_for_seconds, "Rotate Car", 256, (void *)rotation_args, 1,
               NULL);
+  xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
 
   // ~~~ START SCHEDULER ~~~ //
   vTaskStartScheduler();

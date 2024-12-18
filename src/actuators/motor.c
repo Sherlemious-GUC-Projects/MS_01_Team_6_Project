@@ -104,6 +104,7 @@ void motor_loop(void *ptr) {
  */
 void run_for_seconds(void *ptr) {
   uint16_t *seconds = (uint16_t *)ptr;
+  printf("Running for %d seconds\n", *seconds);
   const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
 
   // Set the two motors to 100% speed and forward direction
@@ -124,6 +125,7 @@ void rotate_for_seconds(void *ptr) {
   void **args = (void **)ptr;
   uint16_t *seconds = (uint16_t *)args[0];
   int direction = (int)args[1];
+  printf("Rotating for %d seconds in direction %d\n", *seconds, direction);
   const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
 
   // Set the two motors to 100% speed and forward direction
