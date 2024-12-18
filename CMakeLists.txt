@@ -9,9 +9,9 @@ project(uber_car C CXX ASM)
 set(PICO_BOARD pico_w)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-# set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/FreeRTOS-Kernel)
+set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib/FreeRTOS-Kernel)
 
-# include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
+include(${FREERTOS_KERNEL_PATH}/portable/ThirdParty/GCC/RP2040/FreeRTOS_Kernel_import.cmake)
 
 # Creates a pico-sdk subdirectory in our project for the libraries
 pico_sdk_init()
@@ -20,11 +20,11 @@ pico_sdk_init()
 add_executable(${PROJECT_NAME} 
     main.c 
     src/wifi.c
-    # src/car_navigation.c
-    # src/sensors/gyroscope.c 
-    # src/sensors/gps.c 
-    # src/actuators/motor.c 
-    # src/actuators/servo.c
+    src/car_navigation.c
+    src/sensors/gyroscope.c 
+    src/sensors/gps.c 
+    src/actuators/motor.c 
+    src/actuators/servo.c
     lib/cJson.c
 )
 
@@ -38,10 +38,10 @@ target_link_libraries(${PROJECT_NAME}
     pico_cyw43_arch_lwip_threadsafe_background
     pico_lwip_http
     pico_stdlib
-    # hardware_i2c
-    # hardware_uart
-    # hardware_pwm
-    # FreeRTOS-Kernel-Heap4 
+    hardware_i2c
+    hardware_uart
+    hardware_pwm
+    FreeRTOS-Kernel-Heap4 
 )
 
 # Enable usb output, disable uart output
