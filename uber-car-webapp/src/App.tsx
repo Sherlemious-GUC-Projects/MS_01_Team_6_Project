@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapPin, Car, Navigation, Play, Compass } from "lucide-react";
 import Map from "./components/Map";
 import axios from "axios";
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 
 interface ILocation {
   lat: number;
@@ -335,6 +335,8 @@ const App: React.FC = () => {
       >
         © 2024 Smart Car Tracking System By Team #06
       </footer>
+
+      <ToastContainer />
     </div>
   );
 };
