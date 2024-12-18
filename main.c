@@ -74,6 +74,7 @@ int main() {
   car_info->source = malloc(sizeof(location_t));
   car_info->destination = malloc(sizeof(location_t));
 
+  sleep_ms(2000);
   if (wifi_setup()) {
     return 1;
   }

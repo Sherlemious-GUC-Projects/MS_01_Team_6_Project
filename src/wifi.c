@@ -1,7 +1,7 @@
 #include "../include/wifi.h"
 
-const char WIFI_SSID[] = "Gobas_iPhone";
-const char WIFI_PASSWORD[] = "244466666";
+const char WIFI_SSID[] = "Yousef";
+const char WIFI_PASSWORD[] = "You$ef[03]";
 
 bool done = false;
 char request_body[BUF_SIZE];
