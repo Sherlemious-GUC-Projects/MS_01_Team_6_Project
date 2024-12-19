@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { MapPin, Car, Navigation, Play, Compass } from "lucide-react";
 import Map from "./components/Map";
 import axios from "axios";
+import { toast, ToastContainer } from 'react-toastify';
 
 interface ILocation {
   lat: number;
@@ -11,7 +12,7 @@ interface ILocation {
 }
 
 const App: React.FC = () => {
-  const picoIpAddress = "http://192.168.129.90:80";
+  const picoIpAddress = "http://192.168.129.228:80";
   const [carLocation, setCarLocation] = useState<ILocation | null>(null);
   const [destinationLocation, setDestinationLocation] =
     useState<ILocation | null>(null);
@@ -46,10 +47,17 @@ const App: React.FC = () => {
 
       if (response.status === 200) {
         console.log(response.data);
+        toast.success(`Coordinates sent successfully: ${JSON.stringify(response.data)}`, {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
       }
     } catch (error) {
       console.error("Error sending coordinates to Pico W:", error);
-      alert("Could not send location to the car");
+      toast.error("Could not send location to the car", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -64,13 +72,20 @@ const App: React.FC = () => {
 
   const handleStartMoving = () => {
     if (!destinationLocation) {
-      alert("Please select a destination first!");
+      toast.warn("Please select a destination first!", {
+        position: "bottom-right",
+        autoClose: 3000,
+      });
       return;
     }
 
     setIsMoving(true);
     sendCoordinatesToPico(destinationLocation);
     console.log("Starting movement to:", destinationLocation);
+    toast.info(`Starting movement to: ${JSON.stringify(destinationLocation)}`, {
+      position: "bottom-right",
+      autoClose: 3000,
+    });
   };
 
   const handleOrientation = (event: DeviceOrientationEvent) => {
@@ -89,11 +104,23 @@ const App: React.FC = () => {
         ).requestPermission();
         if (permission === "granted") {
           window.addEventListener("deviceorientation", handleOrientation);
+          console.log("")
+          toast.success("Compass access granted!", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
         } else {
-          alert("Permission to access compass was denied.");
+          toast.error("Permission to access compass was denied.", {
+            position: "bottom-right",
+            autoClose: 3000,
+          });
         }
       } catch (error) {
         console.error("Error accessing compass:", error);
+        toast.error("Error accessing compass", {
+          position: "bottom-right",
+          autoClose: 3000,
+        });
       }
     } else {
       window.addEventListener("deviceorientation", handleOrientation);
@@ -110,21 +137,19 @@ const App: React.FC = () => {
     <div
       className={`
       min-h-screen 
-      ${
-        isDarkMode
+      ${isDarkMode
           ? "bg-gradient-to-br from-gray-900 to-gray-800 text-gray-100"
           : "bg-gradient-to-br from-blue-50 to-blue-100 text-gray-900"
-      } 
+        } 
       flex flex-col transition-colors duration-300 ease-in-out
     `}
     >
       <header
         className={`
-        ${
-          isDarkMode
+        ${isDarkMode
             ? "bg-gray-800 shadow-2xl border-b border-gray-700"
             : "bg-white shadow-md"
-        } 
+          } 
         p-4 flex items-center justify-between transition-colors duration-300
       `}
       >
@@ -161,10 +186,9 @@ const App: React.FC = () => {
             onClick={() => setIsDarkMode(!isDarkMode)}
             className={`
               p-2 rounded-full transition-all duration-300 
-              ${
-                isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600 text-yellow-400"
-                  : "bg-gray-200 hover:bg-gray-300 text-blue-600"
+              ${isDarkMode
+                ? "bg-gray-700 hover:bg-gray-600 text-yellow-400"
+                : "bg-gray-200 hover:bg-gray-300 text-blue-600"
               }
             `}
           >
@@ -270,10 +294,9 @@ const App: React.FC = () => {
                 onClick={requestCompassAccess}
                 className={`
                   w-full py-2 px-4 rounded transition-all duration-300
-                  ${
-                    isDarkMode
-                      ? "bg-cyan-800 text-cyan-200 hover:bg-cyan-700"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
+                  ${isDarkMode
+                    ? "bg-cyan-800 text-cyan-200 hover:bg-cyan-700"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
                   }
                 `}
               >
@@ -287,12 +310,11 @@ const App: React.FC = () => {
             disabled={!destinationLocation || isMoving}
             className={`
               w-full py-3 rounded-xl font-bold flex items-center justify-center space-x-2 transition-all duration-300
-              ${
-                destinationLocation && !isMoving
-                  ? isDarkMode
-                    ? "bg-cyan-800 text-cyan-200 hover:bg-cyan-700 active:scale-95"
-                    : "bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
-                  : "bg-gray-600 cursor-not-allowed text-gray-400"
+              ${destinationLocation && !isMoving
+                ? isDarkMode
+                  ? "bg-cyan-800 text-cyan-200 hover:bg-cyan-700 active:scale-95"
+                  : "bg-blue-600 text-white hover:bg-blue-700 active:scale-95"
+                : "bg-gray-600 cursor-not-allowed text-gray-400"
               }
             `}
           >
@@ -304,16 +326,17 @@ const App: React.FC = () => {
 
       <footer
         className={`
-        ${
-          isDarkMode
+        ${isDarkMode
             ? "bg-gray-800 text-gray-400 border-t border-gray-700"
             : "bg-white text-gray-600 shadow-md"
-        }
+          }
         p-4 text-center transition-colors duration-300
       `}
       >
-        © 2024 Smart Car Tracking System
+        © 2024 Smart Car Tracking System By Team #06
       </footer>
+
+      <ToastContainer />
     </div>
   );
 };
