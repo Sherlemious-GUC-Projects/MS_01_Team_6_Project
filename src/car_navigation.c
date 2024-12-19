@@ -55,5 +55,11 @@ int calculate_rotation_direction(double bearing, double heading) {
 double calculate_time_to_rotate(double bearing, double heading) {
   double delta_heading =
       fmin(fabs(bearing - heading), 360.0 - fabs(bearing - heading));
+  printf("=== Rotation Details ===\n");
+  printf("Bearing: %f\n", bearing);
+  printf("Heading: %f\n", heading);
+  printf("Delta heading: %f\n", delta_heading);
+  printf("Time to rotate: %f\n", delta_heading / APPROX_AVG_ANGULAR_SPEED);
+  printf("================================\n");
   return delta_heading / APPROX_AVG_ANGULAR_SPEED;
 }

@@ -3,13 +3,13 @@
 
 // Constants for Motor 1
 #define MOTOR_1_PWM_PIN 16
-#define MOTOR_1_DIR_PIN1 18
-#define MOTOR_1_DIR_PIN2 19
+#define MOTOR_1_DIR_PIN1 19
+#define MOTOR_1_DIR_PIN2 18
 
 // Constants for Motor 2
 #define MOTOR_2_PWM_PIN 13
-#define MOTOR_2_DIR_PIN1 12
-#define MOTOR_2_DIR_PIN2 11
+#define MOTOR_2_DIR_PIN1 11
+#define MOTOR_2_DIR_PIN2 12
 
 #include "FreeRTOS.h"
 #include "hardware/pwm.h"
@@ -74,4 +74,6 @@ void run_for_seconds(void *ptr);
  *     void
  */
 void rotate_for_seconds(void *ptr);
+
+void motor_main(void *ptr);
 #endif // MOTOR_H

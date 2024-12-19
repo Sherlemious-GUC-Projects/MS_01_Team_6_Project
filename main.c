@@ -106,28 +106,28 @@ int main() {
 
   // ~~~ CALCULATE DETAILS ~~~ //
   double distance = euclidean_distance(car_info->source, car_info->destination);
-  uint16_t run_time = (uint16_t)calculate_time_to_destination(distance);
+  double run_time = calculate_time_to_destination(distance);
   double bearing = calculate_bearing(car_info->source, car_info->destination);
-  uint16_t rotation_time =
-      (uint16_t)calculate_time_to_rotate(bearing, car_info->heading);
+  double rotation_time = calculate_time_to_rotate(bearing, car_info->heading);
   int rotation_direction =
       calculate_rotation_direction(bearing, car_info->heading);
-  void *rotation_args[2] = {(void *)&rotation_time, (void *)rotation_direction};
+  void *args[3] = {(void *)&run_time, (void *)&rotation_time,
+                   (void *)&rotation_direction};
 
   // ~~~ MORE LOGGING ~~~ //
-  printf("Distance: %f\n", distance);
-  printf("Run Time: %d\n", run_time);
-  printf("Bearing: %f\n", bearing);
-  printf("Rotation Time: %f\n", rotation_time);
-  printf("Rotation Direction: %d\n", rotation_direction);
+  printf("=== Sensor and Control Logs ===\n");
+  printf("Bearing: %lf degrees\n", bearing);
+  printf("Distance Traveled: %lf meters\n", distance);
+  printf("Run Time: %lf s\n", run_time);
+  printf("Rotation: %lf seconds (%s)\n", rotation_time,
+         rotation_direction == 1 ? "Clockwise" : "Counter-Clockwise");
+  printf("================================\n");
 
   // ~~~ SETUP MOTOR ~~~ //
   motor_setup();
 
   // ~~~ TASKS ~~~ //
-  xTaskCreate(rotate_for_seconds, "Rotate Car", 256, (void *)rotation_args, 1,
-              NULL);
-  xTaskCreate(run_for_seconds, "Run Motor", 256, (void *)&run_time, 1, NULL);
+  xTaskCreate(motor_main, "motor_main", 1024, args, 1, NULL);
 
   // ~~~ START SCHEDULER ~~~ //
   vTaskStartScheduler();

@@ -9,7 +9,7 @@
 #define METERS_PER_DEGREE_LAT 111320.0
 
 // Approximate meters per second speed of the car
-#define APPROX_AVG_SPEED 10.2
+#define APPROX_AVG_SPEED 1.1498
 
 // Approximate degrees per second angular speed of the car
-#define APPROX_AVG_ANGULAR_SPEED 72.0
+#define APPROX_AVG_ANGULAR_SPEED 234.0

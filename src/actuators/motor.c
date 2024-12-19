@@ -1,4 +1,5 @@
 #include "../../include/actuators/motor.h"
+#include <stdio.h>
 
 /**
  * motor_initialize
@@ -103,19 +104,19 @@ void motor_loop(void *ptr) {
  * run_for_seconds
  */
 void run_for_seconds(void *ptr) {
-  uint16_t *seconds = (uint16_t *)ptr;
-  printf("Running for %d seconds\n", *seconds);
+  double *seconds = (double *)ptr;
+  printf("IN INNER METHOD : Running for %lf seconds\n", *seconds);
+
   const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
 
   // Set the two motors to 100% speed and forward direction
-  motor_control(255, true, 1);
-  motor_control(255, true, 2);
+  motor_control(63.0, 1, 1);
+  motor_control(63.0, 1, 2);
   vTaskDelay(xDelay);
 
   // Turn off the motors
-  motor_control(0, false, 1);
-  motor_control(0, false, 2);
-  vTaskDelay(xDelay);
+  motor_control(0, 0, 1);
+  motor_control(0, 0, 2);
 }
 
 /**
@@ -123,18 +124,44 @@ void run_for_seconds(void *ptr) {
  */
 void rotate_for_seconds(void *ptr) {
   void **args = (void **)ptr;
-  uint16_t *seconds = (uint16_t *)args[0];
+  double *seconds = (double *)args[0];
   int direction = (int)args[1];
-  printf("Rotating for %d seconds in direction %d\n", *seconds, direction);
+  printf("IN INNER METHOD: Rotating for %lf seconds in direction %d\n",
+         *seconds, direction);
   const TickType_t xDelay = *seconds * 1000 / portTICK_PERIOD_MS;
 
   // Set the two motors to 100% speed and forward direction
-  motor_control(27, direction, 1);
-  motor_control(27, !direction, 2);
+  motor_control(31.0, direction, 1);
+  motor_control(0.0, !direction, 2);
   vTaskDelay(xDelay);
 
   // Turn off the motors
   motor_control(0, false, 1);
   motor_control(0, false, 2);
-  vTaskDelay(xDelay);
+}
+
+/**
+ * Main loop
+ */
+void motor_main(void *ptr) {
+  // ~~~ parse ~~~ //
+  void **args = (void **)ptr;
+  double *seconds_1 = (double *)args[0];
+  double *seconds_2 = (double *)args[1];
+  int direction = *(int *)args[2];
+  void *rotation_args[2] = {(void *)seconds_2, (void *)&direction};
+
+  // ~~~ Logging ~~~ //
+  printf("=== Motor Control Logs ===\n");
+  printf("Run Duration: %lf seconds\n", *seconds_1);
+  printf("Rotation Duration: %lf seconds\n", *seconds_2);
+  printf("Rotation Direction: %s\n",
+         direction ? "Clockwise" : "Counter-Clockwise");
+  printf("================================\n");
+
+  // ~~~ rotate ~~~ //
+  rotate_for_seconds(rotation_args);
+
+  // ~~~ run ~~~ //
+  run_for_seconds((void *)seconds_1);
 }
